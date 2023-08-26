@@ -9,6 +9,7 @@ using UnityEngine;
 public class Authorization : MonoBehaviourPunCallbacks
 {
     [SerializeField] private string _playFabTitle;
+    private string gameVersion = "1";
 
     void Start()
     {
@@ -17,8 +18,8 @@ public class Authorization : MonoBehaviourPunCallbacks
 
         var request = new LoginWithCustomIDRequest
         {
-            CustomId = "TestUser",
-            CreateAccount = true
+            CustomId = "artem191020001@gmail.com",
+            CreateAccount = false
         };
 
         PlayFabClientAPI.LoginWithCustomID(request,
@@ -43,8 +44,15 @@ public class Authorization : MonoBehaviourPunCallbacks
         else
         {
             PhotonNetwork.ConnectUsingSettings();
-            PhotonNetwork.GameVersion = PhotonNetwork.AppVersion;
+            PhotonNetwork.GameVersion = gameVersion;
         }
+
+    }
+
+    public void Disconnect()
+    {
+        PhotonNetwork.Disconnect();
+        Debug.Log("User was Disconnected from the Server");
     }
 
     public override void OnConnectedToMaster()

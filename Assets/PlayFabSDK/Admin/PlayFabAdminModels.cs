@@ -565,6 +565,19 @@ namespace PlayFab.AdminModels
         public int Amount;
     }
 
+    [Serializable]
+    public class ChurnPredictionSegmentFilter : PlayFabBaseModel
+    {
+        /// <summary>
+        /// Comparison
+        /// </summary>
+        public SegmentFilterComparison? Comparison;
+        /// <summary>
+        /// RiskLevel
+        /// </summary>
+        public ChurnRiskLevel? RiskLevel;
+    }
+
     public enum ChurnRiskLevel
     {
         NoData,
@@ -724,7 +737,8 @@ namespace PlayFab.AdminModels
         EU,
         NA,
         OC,
-        SA
+        SA,
+        Unknown
     }
 
     public enum CountryCode
@@ -977,7 +991,8 @@ namespace PlayFab.AdminModels
         EH,
         YE,
         ZM,
-        ZW
+        ZW,
+        Unknown
     }
 
     /// <summary>
@@ -1389,13 +1404,13 @@ namespace PlayFab.AdminModels
     /// <summary>
     /// Deletes all data associated with the master player account, including data from all titles the player has played, such
     /// as statistics, custom data, inventory, purchases, virtual currency balances, characters, group memberships, publisher
-    /// data, credential data, account linkages, friends list and PlayStream event history. Removes the player from all
-    /// leaderboards and player search indexes. Note, this API queues the player for deletion and returns a receipt immediately.
-    /// Record the receipt ID for future reference. It may take some time before all player data is fully deleted. Upon
-    /// completion of the deletion, an email will be sent to the notification email address configured for the title confirming
-    /// the deletion. Until the player data is fully deleted, attempts to recreate the player with the same user account in the
-    /// same title will fail with the 'AccountDeleted' error. It is highly recommended to know the impact of the deletion by
-    /// calling GetPlayedTitleList, before calling this API.
+    /// data, credential data, account linkages, friends list, PlayStream event data, and telemetry event data. Removes the
+    /// player from all leaderboards and player search indexes. Note, this API queues the player for deletion and returns a
+    /// receipt immediately. Record the receipt ID for future reference. It may take some time before all player data is fully
+    /// deleted. Upon completion of the deletion, an email will be sent to the notification email address configured for the
+    /// title confirming the deletion. Until the player data is fully deleted, attempts to recreate the player with the same
+    /// user account in the same title will fail with the 'AccountDeleted' error. It is highly recommended to know the impact of
+    /// the deletion by calling GetPlayedTitleList, before calling this API.
     /// </summary>
     [Serializable]
     public class DeleteMasterPlayerAccountRequest : PlayFabRequestCommon
@@ -1752,10 +1767,10 @@ namespace PlayFab.AdminModels
     /// <summary>
     /// Exports all data associated with the master player account, including data from all titles the player has played, such
     /// as statistics, custom data, inventory, purchases, virtual currency balances, characters, group memberships, publisher
-    /// data, credential data, account linkages, friends list and PlayStream event history. Note, this API queues the player for
-    /// export and returns a receipt immediately. Record the receipt ID for future reference. It may take some time before the
-    /// export is available for download. Upon completion of the export, an email containing the URL to download the export dump
-    /// will be sent to the notification email address configured for the title.
+    /// data, credential data, account linkages, friends list, PlayStream event data, and telemetry event data. Note, this API
+    /// queues the player for export and returns a receipt immediately. Record the receipt ID for future reference. It may take
+    /// some time before the export is available for download. Upon completion of the export, an email containing the URL to
+    /// download the export dump will be sent to the notification email address configured for the title.
     /// </summary>
     [Serializable]
     public class ExportMasterPlayerDataRequest : PlayFabRequestCommon
@@ -2393,9 +2408,21 @@ namespace PlayFab.AdminModels
         AutomationRuleAlreadyExists,
         AutomationRuleLimitExceeded,
         InvalidGooglePlayGamesServerAuthCode,
-        StorageAccountNotFound,
         PlayStreamConnectionFailed,
         InvalidEventContents,
+        InsightsV1Deprecated,
+        AnalysisSubscriptionNotFound,
+        AnalysisSubscriptionFailed,
+        AnalysisSubscriptionFoundAlready,
+        AnalysisSubscriptionManagementInvalidInput,
+        InvalidGameCenterId,
+        InvalidNintendoSwitchAccountId,
+        EntityAPIKeysNotSupported,
+        IpAddressBanned,
+        EntityLineageBanned,
+        NamespaceMismatch,
+        InvalidServiceConfiguration,
+        InvalidNamespaceMismatch,
         MatchmakingEntityInvalid,
         MatchmakingPlayerAttributesInvalid,
         MatchmakingQueueNotFound,
@@ -2485,6 +2512,7 @@ namespace PlayFab.AdminModels
         MultiplayerServerBuildReferencedByMatchmakingQueue,
         MultiplayerServerBuildReferencedByBuildAlias,
         MultiplayerServerBuildAliasReferencedByMatchmakingQueue,
+        PartySerializationError,
         ExperimentationExperimentStopped,
         ExperimentationExperimentRunning,
         ExperimentationExperimentNotFound,
@@ -2524,6 +2552,7 @@ namespace PlayFab.AdminModels
         AsyncExportNotInFlight,
         AsyncExportNotFound,
         AsyncExportRateLimitExceeded,
+        AnalyticsSegmentCountOverLimit,
         SnapshotNotFound,
         InventoryApiNotImplemented,
         LobbyDoesNotExist,
@@ -2542,6 +2571,13 @@ namespace PlayFab.AdminModels
         EventSamplingInvalidEventNamespace,
         EventSamplingInvalidEventName,
         EventSamplingRatioNotFound,
+        TelemetryKeyNotFound,
+        TelemetryKeyInvalidName,
+        TelemetryKeyAlreadyExists,
+        TelemetryKeyInvalid,
+        TelemetryKeyCountOverLimit,
+        TelemetryKeyDeactivated,
+        TelemetryKeyLongInsightsRetentionNotAllowed,
         EventSinkConnectionInvalid,
         EventSinkConnectionUnauthorized,
         EventSinkRegionInvalid,
@@ -2556,7 +2592,24 @@ namespace PlayFab.AdminModels
         EventSinkDatabaseNotFound,
         OperationCanceled,
         InvalidDisplayNameRandomSuffixLength,
-        AllowNonUniquePlayerDisplayNamesDisableNotAllowed
+        AllowNonUniquePlayerDisplayNamesDisableNotAllowed,
+        PartitionedEventInvalid,
+        PartitionedEventCountOverLimit,
+        ManageEventNamespaceInvalid,
+        ManageEventNameInvalid,
+        ManagedEventNotFound,
+        ManageEventsInvalidRatio,
+        ManagedEventInvalid,
+        PlayerCustomPropertiesPropertyNameTooLong,
+        PlayerCustomPropertiesPropertyNameIsInvalid,
+        PlayerCustomPropertiesStringPropertyValueTooLong,
+        PlayerCustomPropertiesValueIsInvalidType,
+        PlayerCustomPropertiesVersionMismatch,
+        PlayerCustomPropertiesPropertyCountTooHigh,
+        PlayerCustomPropertiesDuplicatePropertyName,
+        PlayerCustomPropertiesPropertyDoesNotExist,
+        AddonAlreadyExists,
+        AddonDoesntExist
     }
 
     [Serializable]
@@ -2998,12 +3051,19 @@ namespace PlayFab.AdminModels
         /// </summary>
         public Dictionary<string,string> CustomTags;
         /// <summary>
-        /// Maximum number of profiles to load. Default is 1,000. Maximum is 10,000.
+        /// If set to true, the profiles are loaded asynchronously and the response will include a continuation token and
+        /// approximate profile count until the first batch of profiles is loaded. Use this parameter to help avoid network
+        /// timeouts.
+        /// </summary>
+        public bool? GetProfilesAsync;
+        /// <summary>
+        /// Maximum is 10,000. The value 0 will prevent loading any profiles and return only the count of profiles matching this
+        /// segment.
         /// </summary>
         public uint? MaxBatchSize;
         /// <summary>
         /// Number of seconds to keep the continuation token active. After token expiration it is not possible to continue paging
-        /// results. Default is 300 (5 minutes). Maximum is 1,800 (30 minutes).
+        /// results. Default is 300 (5 minutes). Maximum is 5,400 (90 minutes).
         /// </summary>
         public uint? SecondsToLive;
         /// <summary>
@@ -4378,6 +4438,10 @@ namespace PlayFab.AdminModels
         /// </summary>
         public DateTime? BannedUntil;
         /// <summary>
+        /// The prediction of the player to churn within the next seven days.
+        /// </summary>
+        public ChurnRiskLevel? ChurnPrediction;
+        /// <summary>
         /// Array of contact email addresses associated with the player
         /// </summary>
         public List<ContactEmailInfo> ContactEmailAddresses;
@@ -5222,6 +5286,10 @@ namespace PlayFab.AdminModels
         /// </summary>
         public AllPlayersSegmentFilter AllPlayersFilter;
         /// <summary>
+        /// Filter property for player churn risk level.
+        /// </summary>
+        public ChurnPredictionSegmentFilter ChurnPredictionFilter;
+        /// <summary>
         /// Filter property for first login date.
         /// </summary>
         public FirstLoginDateSegmentFilter FirstLoginDateFilter;
@@ -5995,11 +6063,8 @@ namespace PlayFab.AdminModels
     }
 
     /// <summary>
-    /// This API method is designed to store title specific values which can be read by the client. For example, a developer
-    /// could choose to store values which modify the user experience, such as enemy spawn rates, weapon strengths, movement
-    /// speeds, etc. This allows a developer to update the title without the need to create, test, and ship a new build. This
-    /// operation is additive. If a Key does not exist in the current dataset, it will be added with the specified Value. If it
-    /// already exists, the Value for that key will be overwritten with the new Value.
+    /// This operation is additive. If a Key does not exist in the current dataset, it will be added with the specified Value.
+    /// If it already exists, the Value for that key will be overwritten with the new Value.
     /// </summary>
     [Serializable]
     public class SetTitleDataRequest : PlayFabRequestCommon
@@ -6964,6 +7029,10 @@ namespace PlayFab.AdminModels
         /// </summary>
         public UserPsnInfo PsnInfo;
         /// <summary>
+        /// Server Custom ID information, if a server custom ID has been assigned
+        /// </summary>
+        public UserServerCustomIdInfo ServerCustomIdInfo;
+        /// <summary>
         /// User Steam information, if a Steam account has been linked
         /// </summary>
         public UserSteamInfo SteamInfo;
@@ -7227,6 +7296,15 @@ namespace PlayFab.AdminModels
         /// PlayStation :tm: Network online ID
         /// </summary>
         public string PsnOnlineId;
+    }
+
+    [Serializable]
+    public class UserServerCustomIdInfo : PlayFabBaseModel
+    {
+        /// <summary>
+        /// Custom ID
+        /// </summary>
+        public string CustomId;
     }
 
     [Serializable]
