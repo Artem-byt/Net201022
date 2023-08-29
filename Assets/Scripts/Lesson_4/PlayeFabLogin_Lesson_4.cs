@@ -29,6 +29,10 @@ public class PlayeFabLogin_Lesson_4 : MonoBehaviour
     [SerializeField] private GameObject _panelAuth;
     [SerializeField] private GameObject _panelSignIn;
 
+    [SerializeField] private PremitiveAnimation _loadingAnimation;
+
+    [SerializeField] private Button _autoCreateUserWithCustomID;
+
     private string _mail;
     private string _pass;
     private string _username;
@@ -49,9 +53,11 @@ public class PlayeFabLogin_Lesson_4 : MonoBehaviour
 
         _btnAuth.onClick.AddListener(CreateAccount);
         _btnSignIn.onClick.AddListener(SignIn);
+
+        _autoCreateUserWithCustomID.onClick.AddListener(OnAutoCreate);
     }
 
-    public void Start()
+    public void OnAutoCreate()
     {
         // Here we need to check whether TitleId propertyis configured in settings or not
         if (string.IsNullOrEmpty(PlayFabSettings.staticSettings.TitleId))
@@ -60,17 +66,19 @@ public class PlayeFabLogin_Lesson_4 : MonoBehaviour
             PlayFabSettings.staticSettings.TitleId = _playFabTitle;
         }
 
-        var needCreation = PlayerPrefs.HasKey(AuthGuidKey); 
-        var id = PlayerPrefs.GetString(AuthGuidKey, Guid.NewGuid().ToString()); 
-        PlayFabClientAPI.LoginWithCustomID(new LoginWithCustomIDRequest() 
-        { 
-            CustomId = id, 
-            CreateAccount = !needCreation 
-        }, success => 
+        _loadingAnimation.SetRotating();
+        var needCreation = PlayerPrefs.HasKey(AuthGuidKey);
+        var id = PlayerPrefs.GetString(AuthGuidKey, Guid.NewGuid().ToString());
+        PlayFabClientAPI.LoginWithCustomID(new LoginWithCustomIDRequest()
+        {
+            CustomId = id,
+            CreateAccount = !needCreation
+        }, success =>
         {
             Debug.Log("Created Account with custom id");
+            _loadingAnimation.SetRotating();
             SceneManager.LoadScene("Lesson_4_Lobby");
-            PlayerPrefs.SetString(AuthGuidKey, id); 
+            PlayerPrefs.SetString(AuthGuidKey, id);
         }, OnFailure);
     }
 
@@ -91,6 +99,7 @@ public class PlayeFabLogin_Lesson_4 : MonoBehaviour
 
     public void CreateAccount()
     {
+        _loadingAnimation.SetRotating();
         PlayFabClientAPI.RegisterPlayFabUser(new RegisterPlayFabUserRequest
         {
             Username = _username,
@@ -102,6 +111,7 @@ public class PlayeFabLogin_Lesson_4 : MonoBehaviour
 
     public void SignIn()
     {
+        _loadingAnimation.SetRotating();
         PlayFabClientAPI.LoginWithPlayFab(new LoginWithPlayFabRequest
         {
             Username = _username,
@@ -117,16 +127,20 @@ public class PlayeFabLogin_Lesson_4 : MonoBehaviour
 
     private void OnCreateSuccess(RegisterPlayFabUserResult result)
     {
+        _loadingAnimation.SetRotating();
         Debug.Log($"Creation Success:{_username}");
     }
 
     private void OnSignInSuccess(LoginResult result)
     {
+        _loadingAnimation.SetRotating();
+        SceneManager.LoadScene("Lesson_4_Lobby");
         Debug.Log($"Sign In Success:{_username}");
     }
 
     private void OnFailure(PlayFabError error)
     {
+        _loadingAnimation.SetRotating();
         var errorMessage = error.GenerateErrorReport();
         Debug.LogError($"Something went wrong:{errorMessage}");
         _createErrorLabel.text = errorMessage;
@@ -164,5 +178,7 @@ public class PlayeFabLogin_Lesson_4 : MonoBehaviour
 
         _btnAuth.onClick.RemoveAllListeners();
         _btnSignIn.onClick.RemoveAllListeners();
+
+        _autoCreateUserWithCustomID.onClick.RemoveAllListeners();
     }
 }
