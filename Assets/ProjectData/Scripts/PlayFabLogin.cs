@@ -2,7 +2,7 @@ using PlayFab;
 using PlayFab.ClientModels; 
 using UnityEngine;
 
-public class PlayFabLogin : MonoBehaviour
+public class PlayFabLogin_Lesson_4 : MonoBehaviour
 {
     public void Start()
     {
