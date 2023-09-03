@@ -3,14 +3,15 @@ using PlayFab.ClientModels;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using static UnityEditor.Progress;
 
 public class UploadCatalog : MonoBehaviour
 {
     private readonly Dictionary<string, CatalogItem> _catalog = new Dictionary<string, CatalogItem>();
 
-    [SerializeField] private List<TMP_Text> _itemsShow = new List<TMP_Text>();
-    [SerializeField] private Transform _parentOfItemBlocks;
-    [SerializeField] private GameObject _itemBlockPrefab;
+
+    [SerializeField] private UICatalogItem _catalogUIPreparer;
+
 
     private void Start() 
     { 
@@ -35,13 +36,10 @@ public class UploadCatalog : MonoBehaviour
         { 
             _catalog.Add(item.ItemId, item); 
             Debug.Log($"Catalog item {item.ItemId} was added successfully!");
-            HandleUI(item);
+            
         }
+       _catalogUIPreparer.HandleUI(catalog);
     }
 
-    private void HandleUI(CatalogItem item)
-    {
-        var obj = Instantiate(_itemBlockPrefab, _parentOfItemBlocks).GetComponentInChildren<TMP_Text>();
-        obj.text = item.DisplayName;
-    }
+
 }
