@@ -1,0 +1,112 @@
+{
+  "CatalogVersion": "1.0",
+  "Catalog": [
+    {
+      "ItemId": "sword_level_10",
+      "ItemClass": null,
+      "CatalogVersion": "1.0",
+      "DisplayName": "The Legendary Sword (Lvl 10)",
+      "Description": "The Legendary Sword with the Epic Charachterisitics",
+      "VirtualCurrencyPrices": {
+        "GO": 100
+      },
+      "RealCurrencyPrices": {},
+      "Tags": [],
+      "CustomData": null,
+      "Consumable": {
+        "UsageCount": null,
+        "UsagePeriod": null,
+        "UsagePeriodGroup": null
+      },
+      "Container": null,
+      "Bundle": null,
+      "CanBecomeCharacter": false,
+      "IsStackable": false,
+      "IsTradable": false,
+      "ItemImageUrl": null,
+      "IsLimitedEdition": false,
+      "InitialLimitedEditionCount": 0,
+      "ActivatedMembership": null
+    },
+    {
+      "ItemId": "helmet_level_10",
+      "ItemClass": null,
+      "CatalogVersion": "1.0",
+      "DisplayName": "The Legendary Helmet (Lvl 10)",
+      "Description": "The Legendary Helmet of The Legendary Hero of Akaristan",
+      "VirtualCurrencyPrices": {
+        "GO": 150
+      },
+      "RealCurrencyPrices": null,
+      "Tags": [],
+      "CustomData": null,
+      "Consumable": {
+        "UsageCount": null,
+        "UsagePeriod": null,
+        "UsagePeriodGroup": null
+      },
+      "Container": null,
+      "Bundle": null,
+      "CanBecomeCharacter": false,
+      "IsStackable": false,
+      "IsTradable": false,
+      "ItemImageUrl": null,
+      "IsLimitedEdition": false,
+      "InitialLimitedEditionCount": 0,
+      "ActivatedMembership": null
+    },
+    {
+      "ItemId": "armor_lvl_10",
+      "ItemClass": null,
+      "CatalogVersion": "1.0",
+      "DisplayName": "The Legendary Armor (Lvl 10)",
+      "Description": "The Legendary Armor of The Legendary villain Lucifer",
+      "VirtualCurrencyPrices": {
+        "GO": 200
+      },
+      "RealCurrencyPrices": null,
+      "Tags": [],
+      "CustomData": null,
+      "Consumable": {
+        "UsageCount": null,
+        "UsagePeriod": null,
+        "UsagePeriodGroup": null
+      },
+      "Container": null,
+      "Bundle": null,
+      "CanBecomeCharacter": false,
+      "IsStackable": false,
+      "IsTradable": false,
+      "ItemImageUrl": null,
+      "IsLimitedEdition": false,
+      "InitialLimitedEditionCount": 0,
+      "ActivatedMembership": null
+    },
+    {
+      "ItemId": "boots_level_10",
+      "ItemClass": null,
+      "CatalogVersion": "1.0",
+      "DisplayName": "The Legendary Boots (Lvl 10)",
+      "Description": "The Legendary Boots of The Legendary Berserk",
+      "VirtualCurrencyPrices": {},
+      "RealCurrencyPrices": null,
+      "Tags": [],
+      "CustomData": null,
+      "Consumable": {
+        "UsageCount": null,
+        "UsagePeriod": null,
+        "UsagePeriodGroup": null
+      },
+      "Container": null,
+      "Bundle": null,
+      "CanBecomeCharacter": false,
+      "IsStackable": false,
+      "IsTradable": false,
+      "ItemImageUrl": null,
+      "IsLimitedEdition": false,
+      "InitialLimitedEditionCount": 0,
+      "ActivatedMembership": null
+    }
+  ],
+  "DropTables": []
+}
