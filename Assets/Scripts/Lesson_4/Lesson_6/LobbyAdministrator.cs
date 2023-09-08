@@ -10,6 +10,8 @@ public class LobbyAdministrator : MonoBehaviour, ILobbyCallbacks, IConnectionCal
     [SerializeField] private ServerSettings _serverSettings;
     [SerializeField] private TMP_Text _statusUIText;
     [SerializeField] private GameObject _lobbyUI;
+    [SerializeField] private UICatalogItem _uiCatalog;
+    [SerializeField] private LobbyUIWindow _windowUI;
 
     [SerializeField] private Button _lobbyButton;
 
@@ -23,28 +25,68 @@ public class LobbyAdministrator : MonoBehaviour, ILobbyCallbacks, IConnectionCal
     {
         _lbc = new LoadBalancingClient();
         _lbc.AddCallbackTarget(this);
+        
 
         _lbc.ConnectUsingSettings(_serverSettings.AppSettings);
-        _lobbyButton.onClick.AddListener(OnConnectedLobby);
-
+        _lobbyButton.onClick.AddListener(OnConnectLobby);
+        _windowUI.PublicRoom.onClick.AddListener(OnCreatePublic);
+        _windowUI.PrivateRoom.onClick.AddListener(OnCreatePrivate);
     }
 
     private void Update()
     {
-        if (_lbc != null)
+        if (_lbc == null)
         {
             return;
         }
-
+        
         _lbc.Service();
 
         var state = _lbc.State.ToString();
         _statusUIText.text = state;
     }
 
-    private void OnConnectedLobby()
+    private void OnCreatePublic()
     {
+        var roomOptions = new RoomOptions
+        {
+            MaxPlayers = 6,
+            PublishUserId = true
+        };
+
+        var enterRoomParams = new EnterRoomParams
+        {
+            RoomOptions = roomOptions,
+            Lobby = _defaultLobby
+        };
+
+        _lbc.OpCreateRoom(enterRoomParams);
+    }
+
+    private void OnCreatePrivate()
+    {
+        var roomOptions = new RoomOptions
+        {
+            MaxPlayers = 6,
+            IsVisible = false,
+            PublishUserId = true
+        };
+
+        var enterRoomParams = new EnterRoomParams
+        {
+            RoomName = "PrivateRoom",
+            RoomOptions = roomOptions,
+            Lobby = _defaultLobby
+        };
+
+        _lbc.OpCreateRoom(enterRoomParams);
+    }
+
+    private void OnConnectLobby()
+    {
+
         _lbc.OpJoinLobby(_defaultLobby);
+        _windowUI.gameObject.SetActive(true);
     }
 
     private void UpdateCacheRoomList(List<RoomInfo> roomList)
@@ -65,7 +107,7 @@ public class LobbyAdministrator : MonoBehaviour, ILobbyCallbacks, IConnectionCal
 
     public void OnConnected()
     {
-        
+        Debug.Log("On Connected");
     }
 
     public void OnConnectedToMaster()
@@ -112,7 +154,7 @@ public class LobbyAdministrator : MonoBehaviour, ILobbyCallbacks, IConnectionCal
 
     public void OnJoinedRoom()
     {
-       
+        Debug.Log("Joined Room");
     }
 
     public void OnJoinRandomFailed(short returnCode, string message)
@@ -154,5 +196,7 @@ public class LobbyAdministrator : MonoBehaviour, ILobbyCallbacks, IConnectionCal
     {
         _lbc.RemoveCallbackTarget(this);
         _lobbyButton.onClick.RemoveAllListeners();
+        _windowUI.PublicRoom.onClick.RemoveAllListeners();
+        _windowUI.PrivateRoom.onClick.RemoveAllListeners();
     }
 }

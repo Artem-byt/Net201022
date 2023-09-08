@@ -2612,6 +2612,8 @@ GameObject:
   - component: {fileID: 1852444098}
   - component: {fileID: 1852444099}
   - component: {fileID: 1852444100}
+  - component: {fileID: 1852444101}
+  - component: {fileID: 1852444102}
   m_Layer: 5
   m_Name: Canvas
   m_TagString: Untagged
@@ -2751,6 +2753,45 @@ MonoBehaviour:
   _verticalLayoutGroup: {fileID: 1070996679}
   _MinHeightOfItemBlock: 40
   _HeightOfVisiblePartUI: 70
+--- !u!114 &1852444101
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1852444093}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4389a0c650528cd4c92080b5503e9a60, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  CloseRoom: {fileID: 966987039}
+  OpenRoom: {fileID: 1041074542}
+  Connect: {fileID: 1507920866}
+  CloseLobby: {fileID: 1770023348}
+  PrivateRoom: {fileID: 1797714076}
+  PublicRoom: {fileID: 612014340}
+  LobbyWindow: {fileID: 1861549517}
+  _lobbyCatalogItem: {fileID: 1939533477}
+  CurrentRoom: {fileID: 0}
+--- !u!114 &1852444102
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1852444093}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d9f95e3a4f2e16846a63b2b301d3e8ef, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _serverSettings: {fileID: 11400000, guid: a8a7d2bba45362841a24d215b5255885, type: 2}
+  _statusUIText: {fileID: 1215683439}
+  _lobbyUI: {fileID: 1861549517}
+  _uiCatalog: {fileID: 1939533477}
+  _windowUI: {fileID: 1852444101}
+  _lobbyButton: {fileID: 952242216}
 --- !u!1 &1861549517
 GameObject:
   m_ObjectHideFlags: 0
@@ -2766,7 +2807,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1861549518
 RectTransform:
   m_ObjectHideFlags: 0
