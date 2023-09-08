@@ -31,6 +31,7 @@ public class LobbyAdministrator : MonoBehaviour, ILobbyCallbacks, IConnectionCal
         _lobbyButton.onClick.AddListener(OnConnectLobby);
         _windowUI.PublicRoom.onClick.AddListener(OnCreatePublic);
         _windowUI.PrivateRoom.onClick.AddListener(OnCreatePrivate);
+        _windowUI.CloseLobby.onClick.AddListener(OnLeftLobbyBtn);
     }
 
     private void Update()
@@ -87,6 +88,11 @@ public class LobbyAdministrator : MonoBehaviour, ILobbyCallbacks, IConnectionCal
 
         _lbc.OpJoinLobby(_defaultLobby);
         _windowUI.gameObject.SetActive(true);
+    }
+    private void OnLeftLobbyBtn()
+    {
+        _lbc.OpLeaveLobby();
+        _windowUI.LobbyWindow.SetActive(false);
     }
 
     private void UpdateCacheRoomList(List<RoomInfo> roomList)
@@ -170,6 +176,7 @@ public class LobbyAdministrator : MonoBehaviour, ILobbyCallbacks, IConnectionCal
     public void OnLeftLobby()
     {
         cachedRoomList.Clear();
+        Debug.Log("Left Lobby");
     }
 
     public void OnLeftRoom()
@@ -198,5 +205,8 @@ public class LobbyAdministrator : MonoBehaviour, ILobbyCallbacks, IConnectionCal
         _lobbyButton.onClick.RemoveAllListeners();
         _windowUI.PublicRoom.onClick.RemoveAllListeners();
         _windowUI.PrivateRoom.onClick.RemoveAllListeners();
+        _windowUI.CloseLobby.onClick.RemoveAllListeners();
     }
+
+ 
 }
