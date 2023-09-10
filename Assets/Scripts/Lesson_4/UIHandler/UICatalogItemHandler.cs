@@ -5,7 +5,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class UICatalogItem : UIHandlerBase<CatalogItem>
+public class UICatalogItemHandler : UIHandlerBase<CatalogItem>
 {
 
     public override void HandleUI(List<CatalogItem> catalog)

@@ -12,7 +12,7 @@ public class LobbyUIWindow : MonoBehaviour
     public Button PrivateRoom;
     public Button PublicRoom;
     public GameObject LobbyWindow;
-    public UICatalogItem _lobbyCatalogItem;
+    public UIRoomsHandler UIRoomsHandler;
 
     public Button CurrentRoom;
 }

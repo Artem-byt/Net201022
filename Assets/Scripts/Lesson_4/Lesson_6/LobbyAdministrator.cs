@@ -9,8 +9,6 @@ public class LobbyAdministrator : MonoBehaviour, ILobbyCallbacks, IConnectionCal
 {
     [SerializeField] private ServerSettings _serverSettings;
     [SerializeField] private TMP_Text _statusUIText;
-    [SerializeField] private GameObject _lobbyUIGameObject;
-    [SerializeField] private UIRoomsHandler _uiRoomsHandler;
     [SerializeField] private LobbyUIWindow _windowUI;
 
     [SerializeField] private Button _lobbyButton;
@@ -86,11 +84,13 @@ public class LobbyAdministrator : MonoBehaviour, ILobbyCallbacks, IConnectionCal
     private void OnConnectLobby()
     {
         _windowUI.gameObject.SetActive(true);
+        _lobbyButton.interactable = false;
         _lbc.OpJoinLobby(_defaultLobby);
     }
     private void OnLeftLobbyBtn()
     {
         _lbc.OpLeaveLobby();
+        _lobbyButton.interactable = true; ;
         _windowUI.LobbyWindow.SetActive(false);
     }
 
@@ -144,7 +144,7 @@ public class LobbyAdministrator : MonoBehaviour, ILobbyCallbacks, IConnectionCal
     public void OnDisconnected(DisconnectCause cause)
     {
         cachedRoomList.Clear();
-        _uiRoomsHandler.ClearList();
+        _windowUI.UIRoomsHandler.ClearList();
     }
 
     public void OnFriendListUpdate(List<FriendInfo> friendList)
@@ -155,13 +155,14 @@ public class LobbyAdministrator : MonoBehaviour, ILobbyCallbacks, IConnectionCal
     public void OnJoinedLobby()
     {
         cachedRoomList.Clear();
-        _uiRoomsHandler.ClearList();
-        _lobbyUIGameObject.SetActive(true);
+        _windowUI.UIRoomsHandler.ClearList();
+        _windowUI.LobbyWindow.SetActive(true);
     }
 
     public void OnJoinedRoom()
     {
         Debug.Log("Joined Room");
+
     }
 
     public void OnJoinRandomFailed(short returnCode, string message)
@@ -177,7 +178,7 @@ public class LobbyAdministrator : MonoBehaviour, ILobbyCallbacks, IConnectionCal
     public void OnLeftLobby()
     {
         cachedRoomList.Clear();
-        _uiRoomsHandler.ClearList();
+        _windowUI.UIRoomsHandler.ClearList();
         Debug.Log("Left Lobby");
     }
 
@@ -198,8 +199,9 @@ public class LobbyAdministrator : MonoBehaviour, ILobbyCallbacks, IConnectionCal
 
     public void OnRoomListUpdate(List<RoomInfo> roomList)
     {
+        Debug.Log("Update Room List");
         UpdateCacheRoomList(roomList);
-        _uiRoomsHandler.HandleUI(roomList);
+        _windowUI.UIRoomsHandler.HandleUI(roomList);
 
     }
 
