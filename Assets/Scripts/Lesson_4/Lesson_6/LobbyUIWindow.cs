@@ -22,5 +22,7 @@ public class LobbyUIWindow : MonoBehaviour
     public Button BtnAcceptConnectToPrivateRoom;
     public TMP_InputField InputFieldNameOfPrivateRoom;
 
+    public Button _sqlLobbyConnect;
+
     public (Button, RoomInfo) CurrentRoom;
 }

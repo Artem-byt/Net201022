@@ -16,7 +16,10 @@ public class LobbyAdministrator : MonoBehaviour, ILobbyCallbacks, IConnectionCal
 
     private LoadBalancingClient _lbc;
     private TypedLobby _defaultLobby = new TypedLobby("defaultLobby", LobbyType.Default);
+    private TypedLobby _lobbySQL = new TypedLobby("SQLLobby", LobbyType.SqlLobby);
     private Dictionary<string, RoomInfo> cachedRoomList = new Dictionary<string, RoomInfo>();
+
+    private const string ELO_PROP_KEY = "C0";
 
 
 
@@ -41,6 +44,7 @@ public class LobbyAdministrator : MonoBehaviour, ILobbyCallbacks, IConnectionCal
         _windowUI.ConnectPrivateRoom.onClick.AddListener(OnPrivateRoomConnect);
         _windowUI.BtnCancelConnectToPrivateRoom.onClick.AddListener(OnClosePrivateRoomOptions);
         _windowUI.BtnAcceptConnectToPrivateRoom.onClick.AddListener(OnAcceptRoomOptions);
+        _windowUI._sqlLobbyConnect.onClick.AddListener(OnConnectRating);
     }
 
     private void OnAcceptRoomOptions()
@@ -105,6 +109,25 @@ public class LobbyAdministrator : MonoBehaviour, ILobbyCallbacks, IConnectionCal
         _windowUI.CurrentRoom = (button, roomInfo);
         button.image.color = Color.gray;
         _windowUI.Connect.interactable = true;
+    }
+
+    private void OnConnectRating()
+    {
+        var roomOptions = new RoomOptions
+        {
+            MaxPlayers = 6,
+            PublishUserId = true,
+            CustomRoomPropertiesForLobby = new[] { ELO_PROP_KEY },
+            CustomRoomProperties = new ExitGames.Client.Photon.Hashtable { { ELO_PROP_KEY, 400 } }
+        };
+
+        var enterRoomParams = new EnterRoomParams
+        {
+            RoomOptions = roomOptions,
+            Lobby = _lobbySQL
+        };
+
+        _lbc.OpCreateRoom(enterRoomParams);
     }
 
     private void OnCreatePublic()
@@ -184,6 +207,7 @@ public class LobbyAdministrator : MonoBehaviour, ILobbyCallbacks, IConnectionCal
     {
         Debug.Log("On Connected To Master");
         _lobbyButton.interactable = true;
+        _windowUI._sqlLobbyConnect.interactable=true;
     }
 
     public void OnCreatedRoom()
@@ -290,6 +314,8 @@ public class LobbyAdministrator : MonoBehaviour, ILobbyCallbacks, IConnectionCal
         _windowUI.ConnectPrivateRoom.onClick.RemoveAllListeners();
         _windowUI.BtnCancelConnectToPrivateRoom.onClick.RemoveAllListeners();
         _windowUI.BtnAcceptConnectToPrivateRoom.onClick.RemoveAllListeners();
+
+        _windowUI._sqlLobbyConnect.onClick.RemoveAllListeners();
     }
 
 
