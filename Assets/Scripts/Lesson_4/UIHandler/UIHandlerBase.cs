@@ -1,11 +1,16 @@
+using Photon.Realtime;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.UI;
 
 public abstract class UIHandlerBase<T> : MonoBehaviour
 {
+    public UnityAction<Button, RoomInfo> OnClickButtonUI;
+
     [SerializeField] protected Transform _parentOfItemBlocks;
     [SerializeField] protected GameObject _itemBlockPrefab;
     [SerializeField] protected RectTransform _parentOfItemPanel;
@@ -39,6 +44,7 @@ public abstract class UIHandlerBase<T> : MonoBehaviour
     {
         for (int i = 0; i < _listOfObjects.Count; i++)
         {
+            _listOfObjects[i].onClick.RemoveAllListeners();
             Destroy(_listOfObjects[i].gameObject);
         }
         _listOfObjects.Clear();

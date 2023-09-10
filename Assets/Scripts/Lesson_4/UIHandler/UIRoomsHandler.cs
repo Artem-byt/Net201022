@@ -7,6 +7,7 @@ using UnityEngine.UI;
 
 public class UIRoomsHandler : UIHandlerBase<RoomInfo>
 {
+
     public override void HandleUI(List<RoomInfo> roomList)
     {
         base.HandleUI(roomList);
@@ -14,9 +15,13 @@ public class UIRoomsHandler : UIHandlerBase<RoomInfo>
 
         foreach (var item in roomList)
         {
-            var obj = Instantiate(_itemBlockPrefab, _parentOfItemBlocks).GetComponentInChildren<TMP_Text>();
-            _listOfObjects.Add(obj.gameObject.GetComponentInChildren<Button>());
-            obj.text = item.Name;
+            var obj = Instantiate(_itemBlockPrefab, _parentOfItemBlocks);
+            var text = obj.GetComponentInChildren<TMP_Text>();
+            var btn = obj.GetComponent<Button>();
+            btn.interactable = true;
+            btn.onClick.AddListener(() => { OnClickButtonUI.Invoke(btn, item); });
+            _listOfObjects.Add(btn);
+            text.text = item.Name;
         }
 
     }
