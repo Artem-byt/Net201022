@@ -9,8 +9,8 @@ public class LobbyAdministrator : MonoBehaviour, ILobbyCallbacks, IConnectionCal
 {
     [SerializeField] private ServerSettings _serverSettings;
     [SerializeField] private TMP_Text _statusUIText;
-    [SerializeField] private GameObject _lobbyUI;
-    [SerializeField] private UICatalogItem _uiCatalog;
+    [SerializeField] private GameObject _lobbyUIGameObject;
+    [SerializeField] private UIRoomsHandler _uiRoomsHandler;
     [SerializeField] private LobbyUIWindow _windowUI;
 
     [SerializeField] private Button _lobbyButton;
@@ -85,9 +85,8 @@ public class LobbyAdministrator : MonoBehaviour, ILobbyCallbacks, IConnectionCal
 
     private void OnConnectLobby()
     {
-
-        _lbc.OpJoinLobby(_defaultLobby);
         _windowUI.gameObject.SetActive(true);
+        _lbc.OpJoinLobby(_defaultLobby);
     }
     private void OnLeftLobbyBtn()
     {
@@ -145,6 +144,7 @@ public class LobbyAdministrator : MonoBehaviour, ILobbyCallbacks, IConnectionCal
     public void OnDisconnected(DisconnectCause cause)
     {
         cachedRoomList.Clear();
+        _uiRoomsHandler.ClearList();
     }
 
     public void OnFriendListUpdate(List<FriendInfo> friendList)
@@ -155,7 +155,8 @@ public class LobbyAdministrator : MonoBehaviour, ILobbyCallbacks, IConnectionCal
     public void OnJoinedLobby()
     {
         cachedRoomList.Clear();
-        _lobbyUI.SetActive(true);
+        _uiRoomsHandler.ClearList();
+        _lobbyUIGameObject.SetActive(true);
     }
 
     public void OnJoinedRoom()
@@ -176,6 +177,7 @@ public class LobbyAdministrator : MonoBehaviour, ILobbyCallbacks, IConnectionCal
     public void OnLeftLobby()
     {
         cachedRoomList.Clear();
+        _uiRoomsHandler.ClearList();
         Debug.Log("Left Lobby");
     }
 
@@ -197,6 +199,8 @@ public class LobbyAdministrator : MonoBehaviour, ILobbyCallbacks, IConnectionCal
     public void OnRoomListUpdate(List<RoomInfo> roomList)
     {
         UpdateCacheRoomList(roomList);
+        _uiRoomsHandler.HandleUI(roomList);
+
     }
 
     private void OnDestroy()

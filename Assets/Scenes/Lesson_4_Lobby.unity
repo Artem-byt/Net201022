@@ -2772,7 +2772,7 @@ MonoBehaviour:
   PrivateRoom: {fileID: 1797714076}
   PublicRoom: {fileID: 612014340}
   LobbyWindow: {fileID: 1861549517}
-  _lobbyCatalogItem: {fileID: 1939533477}
+  _lobbyCatalogItem: {fileID: 0}
   CurrentRoom: {fileID: 0}
 --- !u!114 &1852444102
 MonoBehaviour:
@@ -2788,8 +2788,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _serverSettings: {fileID: 11400000, guid: a8a7d2bba45362841a24d215b5255885, type: 2}
   _statusUIText: {fileID: 1215683439}
-  _lobbyUI: {fileID: 1861549517}
-  _uiCatalog: {fileID: 1939533477}
+  _lobbyUIGameObject: {fileID: 0}
+  _uiRoomsHandler: {fileID: 0}
   _windowUI: {fileID: 1852444101}
   _lobbyButton: {fileID: 952242216}
 --- !u!1 &1861549517
@@ -3102,13 +3102,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 1939533471}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: dbc3daef8cfeef84d81e8da0ebc92ae5, type: 3}
+  m_Script: {fileID: 11500000, guid: f57e14c65f23e3a44b6e0ff1ce3a2bdf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _parentOfItemBlocks: {fileID: 1070996678}
-  _itemBlockPrefab: {fileID: 4718658993644709723, guid: 2b903002b1473ef48be68a98f70ed7b1, type: 3}
-  _parentOfItemPanel: {fileID: 1939533472}
-  _verticalLayoutGroup: {fileID: 1070996679}
+  _parentOfItemBlocks: {fileID: 0}
+  _itemBlockPrefab: {fileID: 0}
+  _parentOfItemPanel: {fileID: 0}
+  _verticalLayoutGroup: {fileID: 0}
   _MinHeightOfItemBlock: 40
   _HeightOfVisiblePartUI: 70
 --- !u!1 &2000745975
