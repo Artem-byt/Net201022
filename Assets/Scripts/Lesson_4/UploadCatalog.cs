@@ -10,7 +10,7 @@ public class UploadCatalog : MonoBehaviour
     private readonly Dictionary<string, CatalogItem> _catalog = new Dictionary<string, CatalogItem>();
 
 
-    [SerializeField] private UICatalogItem _catalogUIPreparer;
+    [SerializeField] private UICatalogItemHandler _catalogUIPreparer;
 
 
     private void Start() 
@@ -35,8 +35,6 @@ public class UploadCatalog : MonoBehaviour
         foreach (var item in catalog) 
         { 
             _catalog.Add(item.ItemId, item); 
-            Debug.Log($"Catalog item {item.ItemId} was added successfully!");
-            
         }
        _catalogUIPreparer.HandleUI(catalog);
     }
