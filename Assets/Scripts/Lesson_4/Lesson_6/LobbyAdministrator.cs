@@ -21,12 +21,17 @@ public class LobbyAdministrator : MonoBehaviour, ILobbyCallbacks, IConnectionCal
 
     private const string ELO_PROP_KEY = "C0";
 
+    //[Tooltip("The maximum number of players per room")]
+    //[SerializeField]
+    //private byte maxPlayersPerRoom = 4;
 
 
     private void Start()
     {
         _lbc = new LoadBalancingClient();
+        Resources.Load<LoadBalancerReference>("LoadBalancerReference").LoadBalancingClient = _lbc;
         _lbc.AddCallbackTarget(this);
+        PhotonNetwork.AutomaticallySyncScene = true;
 
 
         _lbc.ConnectUsingSettings(_serverSettings.AppSettings);
@@ -253,6 +258,13 @@ public class LobbyAdministrator : MonoBehaviour, ILobbyCallbacks, IConnectionCal
         Debug.Log("Joined Room");
         _windowUI.CloseRoom.interactable = true;
         _windowUI.OpenRoom.interactable = true;
+        Debug.Log("OnJoinedRoom() called by PUN. Now this client is in a room.\nFrom here on, your game would be running.");
+
+        if (_lbc.CurrentRoom.PlayerCount == 1)
+        {
+            Debug.Log("We load the 'Room for 1' ");
+            PhotonNetwork.LoadLevel("PunBasics-Room for 1");
+        }
     }
 
     public void OnJoinRandomFailed(short returnCode, string message)
