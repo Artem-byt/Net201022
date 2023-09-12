@@ -81,7 +81,7 @@ namespace Photon.Pun.Demo.PunBasics
 
 			// Reflect the Player Health
 			if (playerHealthSlider != null) {
-				playerHealthSlider.value = target.Health;
+				playerHealthSlider.value = target.CurrentHealth;
 			}
 		}
 

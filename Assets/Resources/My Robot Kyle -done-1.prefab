@@ -493,7 +493,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 98fac77b304554f238a61572f5720187, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Health: 1
+  CurrentHealth: 0
   playerUiPrefab: {fileID: 170056, guid: 43a165223036b1b438d0ea0ad44ab951, type: 3}
   beams: {fileID: 170262}
 --- !u!114 &11400008

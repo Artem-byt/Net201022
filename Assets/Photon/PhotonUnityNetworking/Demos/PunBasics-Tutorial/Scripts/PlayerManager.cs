@@ -10,7 +10,9 @@
 
 using PlayFab;
 using PlayFab.ClientModels;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -26,8 +28,9 @@ namespace Photon.Pun.Demo.PunBasics
     {
         #region Public Fields
 
-        [Tooltip("The current Health of our player")]
-        public float Health = 1f;
+        //[Tooltip("The current Health of our player")]
+        //public float Health = 1f;
+        public float CurrentHealth;
 
         [Tooltip("The local player instance. Use this to know if the local player is represented in the Scene")]
         public static GameObject LocalPlayerInstance;
@@ -46,6 +49,7 @@ namespace Photon.Pun.Demo.PunBasics
 
         //True, when the user is firing
         bool IsFiring;
+        bool IsHealing;
 
         private float _id;
 
@@ -80,6 +84,7 @@ namespace Photon.Pun.Demo.PunBasics
             if (photonView.IsMine)
             {
                 LocalPlayerInstance = gameObject;
+                MakePurchase();
             }
 
             PlayFabClientAPI.GetAccountInfo(new GetAccountInfoRequest(), result => {
@@ -87,23 +92,30 @@ namespace Photon.Pun.Demo.PunBasics
                 Debug.Log(_playFabId + " : PlayFabId");
             }, error => Debug.Log("Error playFabId"));
 
-            PlayFabClientAPI.UpdateUserData(new UpdateUserDataRequest
-            {
-                Data = new Dictionary<string, string>
-                {
-                   { "Health", "1f"}
-                }
-            },
-            result =>
-            {
-                Debug.Log("Set User Data");
-                GetUserData(_playFabId, "Health");
-            },
-            error => Debug.Log("OnLoginError"));
+            CurrentHealth = 1f;
+            SetData("1");
+            
 
             // #Critical
             // we flag as don't destroy on load so that instance survives level synchronization, thus giving a seamless experience when levels load.
             DontDestroyOnLoad(gameObject);
+        }
+
+        private void SetData(string health)
+        {
+            PlayFabClientAPI.UpdateUserData(new UpdateUserDataRequest
+            {
+                Data = new Dictionary<string, string>
+                {
+                   { "Health", health}
+                }
+            },
+           result =>
+           {
+               Debug.Log("Update User Data");
+               GetUserData(_playFabId, "Health");
+           },
+           error => Debug.Log("OnLoginError"));
         }
 
         private void GetUserData(string PlayFabId, string keyData)
@@ -116,7 +128,8 @@ namespace Photon.Pun.Demo.PunBasics
              {
                  if (result.Data.ContainsKey(keyData))
                  {
-                     Debug.Log($"{keyData}: {result.Data[keyData].Value}");
+                     Debug.Log($"{keyData}: {result.Data[keyData].Value} : {this.gameObject.name} : {_playFabId}");
+                     CurrentHealth = float.Parse(result.Data[keyData].Value);
                  }
              }, 
              error => Debug.Log("OnGetDataError"));
@@ -158,6 +171,20 @@ namespace Photon.Pun.Demo.PunBasics
 #endif
         }
 
+        private void MakePurchase()
+        {
+            PlayFabClientAPI.PurchaseItem(new PurchaseItemRequest
+            {
+                CatalogVersion = "1.0",
+                ItemId = "health_potion",
+                Price = 2,
+                VirtualCurrency = "GO"
+                
+            }, result =>
+            {
+                Debug.Log("Complete Purchase");
+            }, error => Debug.Log("Error Purchase"));
+        }
 
         public override void OnDisable()
         {
@@ -183,10 +210,15 @@ namespace Photon.Pun.Demo.PunBasics
             if (photonView.IsMine)
             {
                 this.ProcessInputs();
-
-                if (this.Health <= 0f && !this.leavingRoom)
+                if (CurrentHealth <= 0f && !this.leavingRoom)
                 {
+                    Debug.Log(CurrentHealth.ToString() + " : CurrentHealth");
                     this.leavingRoom = PhotonNetwork.LeaveRoom();
+                }
+
+                if (this.IsHealing)
+                {
+                    PlayFabClientAPI.GetUserInventory(new GetUserInventoryRequest(), result => ShowInventory(result), error => { Debug.Log("Error Healing"); });
                 }
             }
 
@@ -194,6 +226,30 @@ namespace Photon.Pun.Demo.PunBasics
             {
                 this.beams.SetActive(this.IsFiring);
             }
+
+
+        }
+
+        private void ShowInventory(GetUserInventoryResult result)
+        {
+            var firstItem = result.Inventory.First();
+            ConsumeOption(firstItem.ItemInstanceId);
+        }
+
+        private void ConsumeOption(string itemInstanceId)
+        {
+            PlayFabClientAPI.ConsumeItem(new ConsumeItemRequest
+            {
+                ConsumeCount = 1,
+                ItemInstanceId = itemInstanceId
+            }, result =>
+            {
+                Debug.Log("Complete ConsumeItem");
+                GetUserData(_playFabId, "Health");
+                CurrentHealth += 0.5f;
+                SetData(CurrentHealth.ToString());
+                this.IsHealing = false;
+            }, error => Debug.Log("Error ConsumeItem"));
         }
 
         public override void OnLeftRoom()
@@ -222,7 +278,9 @@ namespace Photon.Pun.Demo.PunBasics
                 return;
             }
 
-            this.Health -= 0.1f;
+            GetUserData(_playFabId, "Health");
+             CurrentHealth -= 0.1f;
+            SetData(CurrentHealth.ToString());
         }
 
         /// <summary>
@@ -246,7 +304,9 @@ namespace Photon.Pun.Demo.PunBasics
             }
 
             // we slowly affect health when beam is constantly hitting us, so player has to move to prevent death.
-            this.Health -= 0.1f * Time.deltaTime;
+            GetUserData(_playFabId, "Health");
+            CurrentHealth -= 0.1f * Time.deltaTime; ;
+            SetData(CurrentHealth.ToString());
         }
 
 
@@ -316,6 +376,14 @@ namespace Photon.Pun.Demo.PunBasics
                     this.IsFiring = false;
                 }
             }
+
+            if (Input.GetKeyDown(KeyCode.V))
+            {
+                if (!this.IsHealing)
+                {
+                    this.IsHealing = true;
+                }
+            }
         }
 
         #endregion
@@ -328,14 +396,14 @@ namespace Photon.Pun.Demo.PunBasics
             {
                 // We own this player: send the others our data
                 stream.SendNext(this.IsFiring);
-                stream.SendNext(this.Health);
+                stream.SendNext(CurrentHealth);
                 stream.SendNext(this.Id);
             }
             else
             {
                 // Network player, receive data
                 this.IsFiring = (bool)stream.ReceiveNext();
-                this.Health = (float)stream.ReceiveNext();
+                CurrentHealth = (float)stream.ReceiveNext();
                 this.Id = (float)stream.ReceiveNext();
             }
         }
