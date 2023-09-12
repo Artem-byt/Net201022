@@ -21,7 +21,7 @@ public class GameManger : MonoBehaviourPunCallbacks
     [SerializeField]
     private GameObject playerPrefab;
 
-    private LoadBalancingClient _lbc;
+    //private LoadBalancingClient _lbc;
 
     #endregion
 
@@ -34,9 +34,9 @@ public class GameManger : MonoBehaviourPunCallbacks
     {
         Instance = this;
         //in case we started this demo with the wrong scene being active, simply load the menu scene
-        _lbc = Resources.Load<LoadBalancerReference>("LoadBalancerReference").LoadBalancingClient;
+        //_lbc = Resources.Load<LoadBalancerReference>("LoadBalancerReference").LoadBalancingClient;
 
-        if (!_lbc.IsConnected)
+        if (!PhotonNetwork.IsConnected)
         {
             SceneManager.LoadScene("PunBasics-Launcher");
 
@@ -52,7 +52,7 @@ public class GameManger : MonoBehaviourPunCallbacks
         {
 
 
-            if (_lbc.InRoom && PlayerManager.LocalPlayerInstance == null)
+            if (PhotonNetwork.InRoom && PlayerManager.LocalPlayerInstance == null)
             {
                 Debug.LogFormat("We are Instantiating LocalPlayer from {0}", SceneManagerHelper.ActiveSceneName);
 
@@ -166,9 +166,9 @@ public class GameManger : MonoBehaviourPunCallbacks
             return;
         }
 
-        Debug.LogFormat("PhotonNetwork : Loading Level : {0}", _lbc.CurrentRoom.PlayerCount);
+        Debug.LogFormat("PhotonNetwork : Loading Level : {0}", PhotonNetwork.CurrentRoom.PlayerCount);
 
-        PhotonNetwork.LoadLevel("PunBasics-Room for " + _lbc.CurrentRoom.PlayerCount);
+        PhotonNetwork.LoadLevel("PunBasics-Room for " + PhotonNetwork.CurrentRoom.PlayerCount);
     }
 
     #endregion

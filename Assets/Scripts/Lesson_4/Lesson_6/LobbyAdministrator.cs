@@ -14,7 +14,7 @@ public class LobbyAdministrator : MonoBehaviour, ILobbyCallbacks, IConnectionCal
 
     [SerializeField] private Button _lobbyButton;
 
-    private LoadBalancingClient _lbc;
+    //private LoadBalancingClient _lbc;
     private TypedLobby _defaultLobby = new TypedLobby("defaultLobby", LobbyType.Default);
     private TypedLobby _lobbySQL = new TypedLobby("SQLLobby", LobbyType.SqlLobby);
     private Dictionary<string, RoomInfo> cachedRoomList = new Dictionary<string, RoomInfo>();
@@ -28,13 +28,13 @@ public class LobbyAdministrator : MonoBehaviour, ILobbyCallbacks, IConnectionCal
 
     private void Start()
     {
-        _lbc = new LoadBalancingClient();
-        Resources.Load<LoadBalancerReference>("LoadBalancerReference").LoadBalancingClient = _lbc;
-        _lbc.AddCallbackTarget(this);
+        //_lbc = new LoadBalancingClient();
+        //Resources.Load<LoadBalancerReference>("LoadBalancerReference").LoadBalancingClient = _lbc;
+        PhotonNetwork.AddCallbackTarget(this);
         PhotonNetwork.AutomaticallySyncScene = true;
 
 
-        _lbc.ConnectUsingSettings(_serverSettings.AppSettings);
+        PhotonNetwork.ConnectUsingSettings(_serverSettings.AppSettings);
         _lobbyButton.onClick.AddListener(OnConnectLobby);
         _windowUI.PublicRoom.onClick.AddListener(OnCreatePublic);
         _windowUI.PrivateRoom.onClick.AddListener(OnCreatePrivate);
@@ -58,7 +58,7 @@ public class LobbyAdministrator : MonoBehaviour, ILobbyCallbacks, IConnectionCal
         {
             RoomName = _windowUI.InputFieldNameOfPrivateRoom.text
         };
-        _lbc.OpJoinRoom(enterRoomParams);
+        PhotonNetwork.NetworkingClient.OpJoinRoom(enterRoomParams);
         _windowUI.PanelOptionsPrivateRoom.SetActive(false);
     }
 
@@ -75,25 +75,25 @@ public class LobbyAdministrator : MonoBehaviour, ILobbyCallbacks, IConnectionCal
     private void OnCloseRoom()
     {
         Debug.Log("Room closed");
-        _lbc.CurrentRoom.IsOpen = false;
+        PhotonNetwork.CurrentRoom.IsOpen = false;
     }
 
     private void OnOpenRoom()
     {
         Debug.Log("Room opened");
-        _lbc.CurrentRoom.IsOpen = true;
+        PhotonNetwork.CurrentRoom.IsOpen = true;
     }
 
     private void Update()
     {
-        if (_lbc == null)
+        if (PhotonNetwork.NetworkingClient == null)
         {
             return;
         }
 
-        _lbc.Service();
+        PhotonNetwork.NetworkingClient.Service();
 
-        var state = _lbc.State.ToString();
+        var state = PhotonNetwork.NetworkingClient.State.ToString();
         _statusUIText.text = state;
     }
 
@@ -104,7 +104,7 @@ public class LobbyAdministrator : MonoBehaviour, ILobbyCallbacks, IConnectionCal
         {
             RoomName = _windowUI.CurrentRoom.Item2.Name
         };
-        _lbc.OpJoinRoom(enterRoomParams);
+        PhotonNetwork.NetworkingClient.OpJoinRoom(enterRoomParams);
         _windowUI.CurrentRoom = (null, null);
         _windowUI.Connect.interactable = false;
     }
@@ -132,7 +132,7 @@ public class LobbyAdministrator : MonoBehaviour, ILobbyCallbacks, IConnectionCal
             Lobby = _lobbySQL
         };
 
-        _lbc.OpCreateRoom(enterRoomParams);
+        PhotonNetwork.NetworkingClient.OpCreateRoom(enterRoomParams);
     }
 
     private void OnCreatePublic()
@@ -149,7 +149,7 @@ public class LobbyAdministrator : MonoBehaviour, ILobbyCallbacks, IConnectionCal
             Lobby = _defaultLobby
         };
 
-        _lbc.OpCreateRoom(enterRoomParams);
+        PhotonNetwork.NetworkingClient.OpCreateRoom(enterRoomParams);
     }
 
     private void OnCreatePrivate()
@@ -170,18 +170,18 @@ public class LobbyAdministrator : MonoBehaviour, ILobbyCallbacks, IConnectionCal
         };
         GUIUtility.systemCopyBuffer = roomName;
         Debug.Log("Имя комнаты скопировано в буфер обмена: " + roomName);
-        _lbc.OpCreateRoom(enterRoomParams);
+        PhotonNetwork.NetworkingClient.OpCreateRoom(enterRoomParams);
     }
 
     private void OnConnectLobby()
     {
         _windowUI.gameObject.SetActive(true);
         _lobbyButton.interactable = false;
-        _lbc.OpJoinLobby(_defaultLobby);
+        PhotonNetwork.NetworkingClient.OpJoinLobby(_defaultLobby);
     }
     private void OnLeftLobbyBtn()
     {
-        _lbc.OpLeaveLobby();
+        PhotonNetwork.NetworkingClient.OpLeaveLobby();
         _lobbyButton.interactable = true; ;
         _windowUI.LobbyWindow.SetActive(false);
         _windowUI.Connect.interactable = false;
@@ -260,7 +260,7 @@ public class LobbyAdministrator : MonoBehaviour, ILobbyCallbacks, IConnectionCal
         _windowUI.OpenRoom.interactable = true;
         Debug.Log("OnJoinedRoom() called by PUN. Now this client is in a room.\nFrom here on, your game would be running.");
 
-        if (_lbc.CurrentRoom.PlayerCount == 1)
+        if (PhotonNetwork.NetworkingClient.CurrentRoom.PlayerCount == 1)
         {
             Debug.Log("We load the 'Room for 1' ");
             PhotonNetwork.LoadLevel("PunBasics-Room for 1");
@@ -310,7 +310,7 @@ public class LobbyAdministrator : MonoBehaviour, ILobbyCallbacks, IConnectionCal
 
     private void OnDestroy()
     {
-        _lbc.RemoveCallbackTarget(this);
+        PhotonNetwork.NetworkingClient.RemoveCallbackTarget(this);
         _lobbyButton.onClick.RemoveAllListeners();
         _windowUI.PublicRoom.onClick.RemoveAllListeners();
         _windowUI.PrivateRoom.onClick.RemoveAllListeners();
