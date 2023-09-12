@@ -9,32 +9,22 @@ public class GameManger : MonoBehaviourPunCallbacks
 
     #region Public Fields
 
-    static public GameManger Instance;
-
     #endregion
 
     #region Private Fields
-
-    private GameObject instance;
 
     [Tooltip("The prefab to use for representing the player")]
     [SerializeField]
     private GameObject playerPrefab;
 
-    //private LoadBalancingClient _lbc;
 
     #endregion
 
     #region MonoBehaviour CallBacks
 
-    /// <summary>
-    /// MonoBehaviour method called on GameObject by Unity during initialization phase.
-    /// </summary>
     void Start()
     {
-        Instance = this;
         //in case we started this demo with the wrong scene being active, simply load the menu scene
-        //_lbc = Resources.Load<LoadBalancerReference>("LoadBalancerReference").LoadBalancingClient;
 
         if (!PhotonNetwork.IsConnected)
         {

@@ -31,7 +31,11 @@ namespace Photon.Pun.Demo.PunBasics
 	    [SerializeField]
 	    private Text playerNameText;
 
-	    [Tooltip("UI Slider to display Player's Health")]
+        [Tooltip("UI Text to display Player's Id")]
+        [SerializeField]
+        private Text playerIdText;
+
+        [Tooltip("UI Slider to display Player's Health")]
 	    [SerializeField]
 	    private Slider playerHealthSlider;
 
@@ -139,9 +143,14 @@ namespace Photon.Pun.Demo.PunBasics
 			if (playerNameText != null) {
                 playerNameText.text = this.target.photonView.Owner.NickName;
 			}
-		}
+        
+            if (playerIdText != null)
+            {
+                playerIdText.text = this.target.Id.ToString();
+            }
+        }
 
-		#endregion
+    #endregion
 
-	}
+}
 }

@@ -1,5 +1,6 @@
 using Photon.Pun;
 using Photon.Realtime;
+using PlayFab;
 using System.Collections.Generic;
 using TMPro;
 using UnityEditor.XR;
@@ -14,22 +15,19 @@ public class LobbyAdministrator : MonoBehaviour, ILobbyCallbacks, IConnectionCal
 
     [SerializeField] private Button _lobbyButton;
 
-    //private LoadBalancingClient _lbc;
     private TypedLobby _defaultLobby = new TypedLobby("defaultLobby", LobbyType.Default);
     private TypedLobby _lobbySQL = new TypedLobby("SQLLobby", LobbyType.SqlLobby);
     private Dictionary<string, RoomInfo> cachedRoomList = new Dictionary<string, RoomInfo>();
 
     private const string ELO_PROP_KEY = "C0";
 
-    //[Tooltip("The maximum number of players per room")]
-    //[SerializeField]
-    //private byte maxPlayersPerRoom = 4;
+    [Tooltip("The maximum number of players per room")]
+    [SerializeField]
+    private byte maxPlayersPerRoom = 4;
 
 
     private void Start()
     {
-        //_lbc = new LoadBalancingClient();
-        //Resources.Load<LoadBalancerReference>("LoadBalancerReference").LoadBalancingClient = _lbc;
         PhotonNetwork.AddCallbackTarget(this);
         PhotonNetwork.AutomaticallySyncScene = true;
 
@@ -120,7 +118,7 @@ public class LobbyAdministrator : MonoBehaviour, ILobbyCallbacks, IConnectionCal
     {
         var roomOptions = new RoomOptions
         {
-            MaxPlayers = 6,
+            MaxPlayers = maxPlayersPerRoom,
             PublishUserId = true,
             CustomRoomPropertiesForLobby = new[] { ELO_PROP_KEY },
             CustomRoomProperties = new ExitGames.Client.Photon.Hashtable { { ELO_PROP_KEY, 400 } }
@@ -139,7 +137,7 @@ public class LobbyAdministrator : MonoBehaviour, ILobbyCallbacks, IConnectionCal
     {
         var roomOptions = new RoomOptions
         {
-            MaxPlayers = 6,
+            MaxPlayers = maxPlayersPerRoom,
             PublishUserId = true
         };
 
@@ -156,7 +154,7 @@ public class LobbyAdministrator : MonoBehaviour, ILobbyCallbacks, IConnectionCal
     {
         var roomOptions = new RoomOptions
         {
-            MaxPlayers = 6,
+            MaxPlayers = maxPlayersPerRoom,
             IsVisible = false,
             PublishUserId = true
         };
@@ -213,6 +211,16 @@ public class LobbyAdministrator : MonoBehaviour, ILobbyCallbacks, IConnectionCal
         Debug.Log("On Connected To Master");
         _lobbyButton.interactable = true;
         _windowUI._sqlLobbyConnect.interactable=true;
+        PlayFabClientAPI.GetAccountInfo(new PlayFab.ClientModels.GetAccountInfoRequest(),
+            result => 
+            {
+                PhotonNetwork.NickName = result.AccountInfo.Username;
+                Debug.Log(result.AccountInfo.Username + " : Username");
+            }, 
+            error => { 
+                Debug.Log("Ошибка получения данных об игроке: " + error);
+            });
+        
     }
 
     public void OnCreatedRoom()
