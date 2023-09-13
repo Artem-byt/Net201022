@@ -218,7 +218,8 @@ namespace Photon.Pun.Demo.PunBasics
 
                 if (this.IsHealing)
                 {
-                    PlayFabClientAPI.GetUserInventory(new GetUserInventoryRequest(), result => ShowInventory(result), error => { Debug.Log("Error Healing"); });
+                    this.IsHealing = false;
+                    PlayFabClientAPI.GetUserInventory(new GetUserInventoryRequest(), result => ShowInventory(result), error => { Debug.Log("Error Healing: " + error.GenerateErrorReport()); });
                 }
             }
 
@@ -245,10 +246,8 @@ namespace Photon.Pun.Demo.PunBasics
             }, result =>
             {
                 Debug.Log("Complete ConsumeItem");
-                GetUserData(_playFabId, "Health");
                 CurrentHealth += 0.5f;
                 SetData(CurrentHealth.ToString());
-                this.IsHealing = false;
             }, error => Debug.Log("Error ConsumeItem"));
         }
 
@@ -278,7 +277,6 @@ namespace Photon.Pun.Demo.PunBasics
                 return;
             }
 
-            GetUserData(_playFabId, "Health");
              CurrentHealth -= 0.1f;
             SetData(CurrentHealth.ToString());
         }
@@ -304,7 +302,6 @@ namespace Photon.Pun.Demo.PunBasics
             }
 
             // we slowly affect health when beam is constantly hitting us, so player has to move to prevent death.
-            GetUserData(_playFabId, "Health");
             CurrentHealth -= 0.1f * Time.deltaTime; ;
             SetData(CurrentHealth.ToString());
         }
