@@ -8,6 +8,7 @@ public class CharacterPlayFabCall
 {
     public Action OnUpdateCharacterStaristics;
     private string _characterName;
+    private string _characterId;
 
     public void OnNameChanged(string changedName) 
     {
@@ -22,17 +23,18 @@ public class CharacterPlayFabCall
             ItemId = itemId 
         }, 
         result => 
-        { 
-            UpdateCharacterStatistics(result.CharacterId); 
+        {
+            _characterId = result.CharacterId;
+            UpdateCharacterStatistics(); 
         },
         Debug.LogError);
     }
 
-    private void UpdateCharacterStatistics(string characterId) 
+    public void UpdateCharacterStatistics() 
     {
         PlayFabClientAPI.UpdateCharacterStatistics(new UpdateCharacterStatisticsRequest 
         { 
-            CharacterId = characterId, 
+            CharacterId = _characterId, 
             CharacterStatistics = new Dictionary<string, int> 
             {
                 { "Level",1}, 
@@ -42,10 +44,23 @@ public class CharacterPlayFabCall
             } 
         }, result => 
         { 
-            Debug.Log($"Initial stats set, telling clientto update character list");
+            Debug.Log($"Initial stats set, telling client to update character list");
             OnUpdateCharacterStaristics?.Invoke();
         }, 
         Debug.LogError); 
+    }
+
+    public void GetCHaracterStatistics(Action<Dictionary<string, int>> callback)
+    {
+        PlayFabClientAPI.GetCharacterStatistics(new GetCharacterStatisticsRequest
+        {
+            CharacterId = _characterId
+        },
+        result =>
+        {
+            callback?.Invoke(result.CharacterStatistics);
+        },
+        error => Debug.Log(error.GenerateErrorReport()));
     }
 
     public void CompletePurchaseForCharacterSlots()

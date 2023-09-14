@@ -1,5 +1,6 @@
 using PlayFab;
 using PlayFab.ClientModels;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,6 +11,8 @@ using UnityEngine.UI;
 
 public class CharachterCallUI : MonoBehaviour
 {
+    public event Action OnStartGame;
+
     [SerializeField] private List<Button> _buttonSlots;
     [SerializeField] private GameObject _panelNewCharacterCreator;
     [SerializeField] private GameObject _chooseCharacterPrefab;
@@ -52,10 +55,11 @@ public class CharachterCallUI : MonoBehaviour
 
         for (int i=0; i< result.Characters.Count; i++)
         {
-            _characters.Add(result.Characters[i]);
+            _characters.Add(result.Characters[i]); ;
+            Debug.Log(i + " Trying search Error: " + _buttonSlots[i]);
             ChangeNameOfButton(_buttonSlots[i], result.Characters[i]);
             _buttonSlots[i].onClick.AddListener(ChooseCreatedCharacter);
-            _buttonSlots[i].GetComponentInChildren<TMP_Text>().text = result.Characters[i].CharacterName;
+
         }
         if (result.Characters.Count < 2) 
         {
@@ -76,12 +80,16 @@ public class CharachterCallUI : MonoBehaviour
 
     private void ChangeNameOfButton(Button button, CharacterResult characterResult)
     {
-
+        if (button != null)
+        {
+            button.GetComponentInChildren<TMP_Text>().text = characterResult.CharacterName;
+        }
     }
 
     private void ChooseCreatedCharacter()
     {
-
+        SwitchStateUICharacters(false, false);
+        OnStartGame?.Invoke();
     }
 
     private void OnCreatedNewCharacterAccept()
