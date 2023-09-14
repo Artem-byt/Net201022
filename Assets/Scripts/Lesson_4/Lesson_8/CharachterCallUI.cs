@@ -55,6 +55,11 @@ public class CharachterCallUI : MonoBehaviour
             _characters.Add(result.Characters[i]);
             ChangeNameOfButton(_buttonSlots[i], result.Characters[i]);
             _buttonSlots[i].onClick.AddListener(ChooseCreatedCharacter);
+            _buttonSlots[i].GetComponentInChildren<TMP_Text>().text = result.Characters[i].CharacterName;
+        }
+        if (result.Characters.Count < 2) 
+        {
+            _characterPlayFabCall.CompletePurchaseForCharacterSlots();
         }
 
         for (int i = _characters.Count; i < _buttonSlots.Count; i++)

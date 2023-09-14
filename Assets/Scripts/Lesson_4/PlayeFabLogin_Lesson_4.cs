@@ -77,6 +77,7 @@ public class PlayeFabLogin_Lesson_4 : MonoBehaviour
         {
             Debug.Log("Created Account with custom id");
             _loadingAnimation.SetRotating();
+            Debug.Log("PlayFabId = " + success.PlayFabId);
             SceneManager.LoadScene("Lesson_4_Lobby");
             PlayerPrefs.SetString(AuthGuidKey, id);
         }, OnFailure);
@@ -181,4 +182,6 @@ public class PlayeFabLogin_Lesson_4 : MonoBehaviour
 
         _autoCreateUserWithCustomID.onClick.RemoveAllListeners();
     }
+
+
 }

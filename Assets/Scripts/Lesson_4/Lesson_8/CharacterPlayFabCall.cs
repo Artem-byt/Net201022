@@ -15,7 +15,7 @@ public class CharacterPlayFabCall
     }
 
     public void CreateCharacterWithItemId(string itemId) 
-    { 
+    {
         PlayFabClientAPI.GrantCharacterToUser(new GrantCharacterToUserRequest 
         { 
             CharacterName = _characterName, 
@@ -47,4 +47,20 @@ public class CharacterPlayFabCall
         }, 
         Debug.LogError); 
     }
+
+    public void CompletePurchaseForCharacterSlots()
+    {
+        PlayFabClientAPI.PurchaseItem(new PurchaseItemRequest
+        {
+            CatalogVersion = "1.0",
+            ItemId = "character_token",
+            Price = 1,
+            VirtualCurrency = "GO"
+
+        }, result =>
+        {
+            Debug.Log("Complete Purchase");
+        }, error => Debug.Log("Error Purchase"));
+    }
+
 }
