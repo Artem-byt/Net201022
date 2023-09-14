@@ -29,7 +29,7 @@ public class CharacterPlayFabCall
     }
 
     private void UpdateCharacterStatistics(string characterId) 
-    { 
+    {
         PlayFabClientAPI.UpdateCharacterStatistics(new UpdateCharacterStatisticsRequest 
         { 
             CharacterId = characterId, 
