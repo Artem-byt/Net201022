@@ -1511,7 +1511,8 @@ PrefabInstance:
       propertyPath: _buttonSlots.Array.data[1]
       value: 
       objectReference: {fileID: 991308156}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 1998271624175733326, guid: b7fe671fa5d4d4772a4b20715fb9b0ff, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: b7fe671fa5d4d4772a4b20715fb9b0ff, type: 3}
 --- !u!114 &2078131209 stripped
 MonoBehaviour:

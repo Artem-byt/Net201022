@@ -552,6 +552,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 9103184113840111019}
     - target: {fileID: 5686793398087658099, guid: b7fe671fa5d4d4772a4b20715fb9b0ff, type: 3}
+      propertyPath: _characterPlayFabCall
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 5686793398087658099, guid: b7fe671fa5d4d4772a4b20715fb9b0ff, type: 3}
       propertyPath: _chooseCharacterPrefab
       value: 
       objectReference: {fileID: 9103184113840111019}
@@ -567,7 +571,8 @@ PrefabInstance:
       propertyPath: _buttonSlots.Array.data[1]
       value: 
       objectReference: {fileID: 9103184113840111017}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 1998271624175733326, guid: b7fe671fa5d4d4772a4b20715fb9b0ff, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: b7fe671fa5d4d4772a4b20715fb9b0ff, type: 3}
 --- !u!114 &533624002 stripped
 MonoBehaviour:
@@ -986,6 +991,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1962087664}
     m_Modifications:
+    - target: {fileID: 11478194, guid: b19bb80838bcf4457bf6f50a19c5593b, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 11478194, guid: b19bb80838bcf4457bf6f50a19c5593b, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
       value: 1

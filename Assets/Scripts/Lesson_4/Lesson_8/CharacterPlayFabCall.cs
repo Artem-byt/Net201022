@@ -4,57 +4,56 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CharacterPlayFabCall
+public static class CharacterPlayFabCall
 {
-    public Action OnUpdateCharacterStaristics;
-    private string _characterName;
-    private string _characterId;
 
-    public void OnNameChanged(string changedName) 
-    {
-        _characterName = changedName;
-    }
+    public const string XP = "XP";
+    public const string LEVEL = "Level";
+    public const string DAMAGE = "Damage";
+    public const string GOLD = "GOLD";
+    public const string HP = "HP";
 
-    public void CreateCharacterWithItemId(string itemId) 
+    public static void CreateCharacterWithItemId(string itemId, Action callback, string characterName) 
     {
         PlayFabClientAPI.GrantCharacterToUser(new GrantCharacterToUserRequest 
         { 
-            CharacterName = _characterName, 
+            CharacterName = characterName, 
             ItemId = itemId 
         }, 
         result => 
         {
-            _characterId = result.CharacterId;
-            UpdateCharacterStatistics(); 
+            var dictionary = new Dictionary<string, int> 
+            {
+                { LEVEL,1},
+                { XP,0},
+                { DAMAGE,0},
+                { GOLD, 0 },
+                { HP,1}
+            };
+            UpdateCharacterStatistics(callback, result.CharacterId, dictionary); 
         },
         Debug.LogError);
     }
 
-    public void UpdateCharacterStatistics() 
+    public static void UpdateCharacterStatistics(Action callback, string characterId, Dictionary<string, int> characterStatistics) 
     {
         PlayFabClientAPI.UpdateCharacterStatistics(new UpdateCharacterStatisticsRequest 
         { 
-            CharacterId = _characterId, 
-            CharacterStatistics = new Dictionary<string, int> 
-            {
-                { "Level",1}, 
-                { "XP",0}, 
-                { "Gold",0},
-                { "HP",0}
-            } 
+            CharacterId = characterId, 
+            CharacterStatistics = characterStatistics
         }, result => 
         { 
             Debug.Log($"Initial stats set, telling client to update character list");
-            OnUpdateCharacterStaristics?.Invoke();
+            callback?.Invoke();
         }, 
         Debug.LogError); 
     }
 
-    public void GetCHaracterStatistics(Action<Dictionary<string, int>> callback)
+    public static void GetCHaracterStatistics(Action<Dictionary<string, int>> callback, string characterId)
     {
         PlayFabClientAPI.GetCharacterStatistics(new GetCharacterStatisticsRequest
         {
-            CharacterId = _characterId
+            CharacterId = characterId
         },
         result =>
         {
@@ -63,7 +62,7 @@ public class CharacterPlayFabCall
         error => Debug.Log(error.GenerateErrorReport()));
     }
 
-    public void CompletePurchaseForCharacterSlots()
+    public static void CompletePurchaseForCharacterSlots()
     {
         PlayFabClientAPI.PurchaseItem(new PurchaseItemRequest
         {

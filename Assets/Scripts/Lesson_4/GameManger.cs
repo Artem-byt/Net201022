@@ -3,6 +3,8 @@ using Photon.Pun;
 using Photon.Realtime;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using PlayFab.ClientModels;
+using System;
 
 public class GameManger : MonoBehaviourPunCallbacks
 {
@@ -17,20 +19,20 @@ public class GameManger : MonoBehaviourPunCallbacks
     [SerializeField]
     private GameObject playerPrefab;
 
-    [SerializeField] private CharachterCallUI _CharacterUI;
+    [SerializeField] private PrepareCharacterUI _CharacterUI;
 
     #endregion
 
     #region MonoBehaviour CallBacks
 
-    void Start()
+    private void Start()
     {
         //in case we started this demo with the wrong scene being active, simply load the menu scene
         _CharacterUI.OnStartGame += InstantiatePlayer;
 
         if (!PhotonNetwork.IsConnected)
         {
-            SceneManager.LoadScene("PunBasics-Launcher");
+            SceneManager.LoadScene("Lesson_4");
 
             return;
         }
@@ -70,7 +72,7 @@ public class GameManger : MonoBehaviourPunCallbacks
 
     }
 
-    private void InstantiatePlayer()
+    private void InstantiatePlayer(CharacterResult character)
     {
         if (PhotonNetwork.InRoom && PlayerManager.LocalPlayerInstance == null)
         {
@@ -78,7 +80,8 @@ public class GameManger : MonoBehaviourPunCallbacks
 
             // we're in a room. spawn a character for the local player. it gets synced by using PhotonNetwork.Instantiate
 
-            PhotonNetwork.Instantiate(this.playerPrefab.name, new Vector3(0f, 5f, 0f), Quaternion.identity, 0);
+           var go= PhotonNetwork.Instantiate(this.playerPrefab.name, new Vector3(0f, 5f, 0f), Quaternion.identity, 0);
+            go.GetComponentInChildren<PlayerManager>().CharacterResult = character;
         }
         else
         {

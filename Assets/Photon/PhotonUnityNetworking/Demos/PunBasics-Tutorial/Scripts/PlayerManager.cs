@@ -35,6 +35,10 @@ namespace Photon.Pun.Demo.PunBasics
         [Tooltip("The local player instance. Use this to know if the local player is represented in the Scene")]
         public static GameObject LocalPlayerInstance;
 
+        public CharacterResult CharacterResult;
+
+        public float KillId = -1;
+
         #endregion
 
         #region Private Fields
@@ -63,6 +67,8 @@ namespace Photon.Pun.Demo.PunBasics
             get => photonView.ViewID;
             set => _id = value;
         }
+
+        private CharacterPlayUI _characterPlayUI;
 
         #endregion
 
@@ -164,6 +170,8 @@ namespace Photon.Pun.Demo.PunBasics
             {
                 GameObject _uiGo = Instantiate(this.playerUiStatsPrefab);
                 _uiGo.transform.SetParent(GameObject.Find("Canvas").GetComponent<Transform>(), false);
+                _characterPlayUI = _uiGo.GetComponent<CharacterPlayUI>();
+                CharacterPlayFabCall.GetCHaracterStatistics(UpdateUIStatistics, CharacterResult.CharacterId);
             }
 
             if (this.playerUiPrefab != null)
@@ -180,6 +188,15 @@ namespace Photon.Pun.Demo.PunBasics
             // Unity 5.4 has a new scene management. register a method to call CalledOnLevelWasLoaded.
             UnityEngine.SceneManagement.SceneManager.sceneLoaded += OnSceneLoaded;
 #endif
+        }
+
+        public void UpdateUIStatistics(Dictionary<string, int> statistics)
+        {
+            _characterPlayUI.XpUI.text = "XP " + statistics[CharacterPlayFabCall.XP].ToString();
+            _characterPlayUI.GoldUI.text = "GOLD " + statistics[CharacterPlayFabCall.GOLD].ToString();
+            _characterPlayUI.LevelUI.text = "Level " + statistics[CharacterPlayFabCall.LEVEL].ToString();
+            _characterPlayUI.DamageUI.text = "Damage " + statistics[CharacterPlayFabCall.DAMAGE].ToString();
+            _characterPlayUI.MaxHPUI.text = "Max HP " + statistics[CharacterPlayFabCall.HP].ToString();
         }
 
         private void MakePurchase()
@@ -215,7 +232,7 @@ namespace Photon.Pun.Demo.PunBasics
         /// Show and hide the beams
         /// Watch for end of game, when local player health is 0.
         /// </summary>
-        public void Update()
+        private void Update()
         {
             // we only process Inputs and check health if we are the local player
             if (photonView.IsMine)
@@ -231,6 +248,11 @@ namespace Photon.Pun.Demo.PunBasics
                 {
                     this.IsHealing = false;
                     PlayFabClientAPI.GetUserInventory(new GetUserInventoryRequest(), result => ShowInventory(result), error => { Debug.Log("Error Healing: " + error.GenerateErrorReport()); });
+                }
+                
+                if (KillId == Id)
+                {
+                    Debug.Log("Almost Done !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
                 }
             }
 
@@ -287,8 +309,13 @@ namespace Photon.Pun.Demo.PunBasics
             {
                 return;
             }
-
+             ;
             CurrentHealth -= 0.1f;
+            //if (CurrentHealth < 0)
+            //{
+                KillId = other.gameObject.GetComponentInParent<PlayerManager>().Id;
+            Debug.Log(KillId);
+            //}
             SetData(CurrentHealth.ToString());
         }
 
@@ -314,6 +341,10 @@ namespace Photon.Pun.Demo.PunBasics
 
             // we slowly affect health when beam is constantly hitting us, so player has to move to prevent death.
             CurrentHealth -= 0.1f * Time.deltaTime; ;
+            //if (CurrentHealth < 0)
+            //{
+                KillId = other.gameObject.GetComponentInParent<PlayerManager>().Id;
+            //}
             SetData(CurrentHealth.ToString());
         }
 
@@ -406,6 +437,7 @@ namespace Photon.Pun.Demo.PunBasics
                 stream.SendNext(this.IsFiring);
                 stream.SendNext(CurrentHealth);
                 stream.SendNext(this.Id);
+                //stream.SendNext(this.KillId);
             }
             else
             {
@@ -413,6 +445,7 @@ namespace Photon.Pun.Demo.PunBasics
                 this.IsFiring = (bool)stream.ReceiveNext();
                 CurrentHealth = (float)stream.ReceiveNext();
                 this.Id = (float)stream.ReceiveNext();
+                //this.KillId = (float)stream.ReceiveNext();
             }
         }
 

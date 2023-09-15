@@ -46,6 +46,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerPrefab: {fileID: 100030, guid: 139ae52f59e150a4d8d4220b13d3df22, type: 3}
+  _CharacterUI: {fileID: 0}
 --- !u!114 &5686793398087658099
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -61,3 +62,5 @@ MonoBehaviour:
   _buttonSlots:
   - {fileID: 0}
   - {fileID: 0}
+  _panelNewCharacterCreator: {fileID: 0}
+  _chooseCharacterPrefab: {fileID: 0}
