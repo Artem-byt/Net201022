@@ -43,6 +43,9 @@ namespace Photon.Pun.Demo.PunBasics
         [SerializeField]
         private GameObject playerUiPrefab;
 
+        [SerializeField]
+        private GameObject playerUiStatsPrefab;
+
         [Tooltip("The Beams GameObject to control")]
         [SerializeField]
         private GameObject beams;
@@ -87,14 +90,15 @@ namespace Photon.Pun.Demo.PunBasics
                 MakePurchase();
             }
 
-            PlayFabClientAPI.GetAccountInfo(new GetAccountInfoRequest(), result => {
+            PlayFabClientAPI.GetAccountInfo(new GetAccountInfoRequest(), result =>
+            {
                 _playFabId = result.AccountInfo.PlayFabId;
                 Debug.Log(_playFabId + " : PlayFabId");
             }, error => Debug.Log("Error playFabId"));
 
             CurrentHealth = 1f;
             SetData("1");
-            
+
 
             // #Critical
             // we flag as don't destroy on load so that instance survives level synchronization, thus giving a seamless experience when levels load.
@@ -131,7 +135,7 @@ namespace Photon.Pun.Demo.PunBasics
                      Debug.Log($"{keyData}: {result.Data[keyData].Value} : {this.gameObject.name} : {_playFabId}");
                      CurrentHealth = float.Parse(result.Data[keyData].Value);
                  }
-             }, 
+             },
              error => Debug.Log("OnGetDataError"));
         }
 
@@ -155,6 +159,13 @@ namespace Photon.Pun.Demo.PunBasics
             }
 
             // Create the UI
+            
+            if (this.playerUiStatsPrefab != null && photonView.IsMine)
+            {
+                GameObject _uiGo = Instantiate(this.playerUiStatsPrefab);
+                _uiGo.transform.SetParent(GameObject.Find("Canvas").GetComponent<Transform>(), false);
+            }
+
             if (this.playerUiPrefab != null)
             {
                 GameObject _uiGo = Instantiate(this.playerUiPrefab);
@@ -179,7 +190,7 @@ namespace Photon.Pun.Demo.PunBasics
                 ItemId = "health_potion",
                 Price = 2,
                 VirtualCurrency = "GO"
-                
+
             }, result =>
             {
                 Debug.Log("Complete Purchase");
@@ -277,7 +288,7 @@ namespace Photon.Pun.Demo.PunBasics
                 return;
             }
 
-             CurrentHealth -= 0.1f;
+            CurrentHealth -= 0.1f;
             SetData(CurrentHealth.ToString());
         }
 
