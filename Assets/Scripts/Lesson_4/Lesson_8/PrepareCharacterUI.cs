@@ -14,7 +14,6 @@ public class PrepareCharacterUI : MonoBehaviour
     [SerializeField] private List<Button> _buttonSlots;
     [SerializeField] private GameObject _panelNewCharacterCreator;
     [SerializeField] private GameObject _chooseCharacterPrefab;
-    //[SerializeField] private CharacterPlayFabCall _characterPlayFabCall;
 
     private List<CharacterResult> _characters = new List<CharacterResult>();
     private List<Button> _newCharacterPanelButtons= new List<Button>();

@@ -67,7 +67,7 @@ namespace Photon.Pun.Demo.PunBasics
             set => _id = value;
         }
 
-        private CharacterPlayUI _characterPlayUI;
+        private CharacterStatsUI _characterPlayUI;
 
         #endregion
 
@@ -164,13 +164,11 @@ namespace Photon.Pun.Demo.PunBasics
             }
 
             // Create the UI
-            
-            if (this.playerUiStatsPrefab != null && photonView.IsMine)
+
+            if (playerUiStatsPrefab != null && photonView.IsMine)
             {
                 GameObject _uiGo = Instantiate(this.playerUiStatsPrefab);
-                _uiGo.transform.SetParent(GameObject.Find("Canvas").GetComponent<Transform>(), false);
-                _characterPlayUI = _uiGo.GetComponent<CharacterPlayUI>();
-                CharacterPlayFabCall.GetCHaracterStatistics(UpdateUIStatistics, CharacterResult.CharacterId);
+                _uiGo.SendMessage("SetTarget", this, SendMessageOptions.RequireReceiver);
             }
 
             if (this.playerUiPrefab != null)
@@ -189,14 +187,7 @@ namespace Photon.Pun.Demo.PunBasics
 #endif
         }
 
-        public void UpdateUIStatistics(Dictionary<string, int> statistics)
-        {
-            _characterPlayUI.XpUI.text = "XP " + statistics[CharacterPlayFabCall.XP].ToString();
-            _characterPlayUI.GoldUI.text = "GOLD " + statistics[CharacterPlayFabCall.GOLD].ToString();
-            _characterPlayUI.LevelUI.text = "Level " + statistics[CharacterPlayFabCall.LEVEL].ToString();
-            _characterPlayUI.DamageUI.text = "Damage " + statistics[CharacterPlayFabCall.DAMAGE].ToString();
-            _characterPlayUI.MaxHPUI.text = "Max HP " + statistics[CharacterPlayFabCall.HP].ToString();
-        }
+
 
         private void MakePurchase()
         {
@@ -359,6 +350,13 @@ namespace Photon.Pun.Demo.PunBasics
 
             GameObject _uiGo = Instantiate(this.playerUiPrefab);
             _uiGo.SendMessage("SetTarget", this, SendMessageOptions.RequireReceiver);
+
+            if(photonView.IsMine)
+            {
+                GameObject _uiGo1 = Instantiate(this.playerUiStatsPrefab);
+                _uiGo1.SendMessage("SetTarget", this, SendMessageOptions.RequireReceiver);
+            }
+
         }
 
         #endregion
