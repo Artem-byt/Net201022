@@ -101,6 +101,7 @@ public class CharachterCallUI : MonoBehaviour
         }
         _characterPlayFabCall.OnNameChanged(_nameNewCharacter.text);
         _characterPlayFabCall.CreateCharacterWithItemId("character_token");
+        OnStartGame?.Invoke();
     }
 
     private void OpenCreateNewCharacterPrompt() 
