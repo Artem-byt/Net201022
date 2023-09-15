@@ -37,7 +37,6 @@ namespace Photon.Pun.Demo.PunBasics
 
         public CharacterResult CharacterResult;
 
-        public float KillId = -1;
 
         #endregion
 
@@ -249,11 +248,6 @@ namespace Photon.Pun.Demo.PunBasics
                     this.IsHealing = false;
                     PlayFabClientAPI.GetUserInventory(new GetUserInventoryRequest(), result => ShowInventory(result), error => { Debug.Log("Error Healing: " + error.GenerateErrorReport()); });
                 }
-                
-                if (KillId == Id)
-                {
-                    Debug.Log("Almost Done !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-                }
             }
 
             if (this.beams != null && this.IsFiring != this.beams.activeInHierarchy)
@@ -311,11 +305,6 @@ namespace Photon.Pun.Demo.PunBasics
             }
              ;
             CurrentHealth -= 0.1f;
-            //if (CurrentHealth < 0)
-            //{
-                KillId = other.gameObject.GetComponentInParent<PlayerManager>().Id;
-            Debug.Log(KillId);
-            //}
             SetData(CurrentHealth.ToString());
         }
 
@@ -341,10 +330,6 @@ namespace Photon.Pun.Demo.PunBasics
 
             // we slowly affect health when beam is constantly hitting us, so player has to move to prevent death.
             CurrentHealth -= 0.1f * Time.deltaTime; ;
-            //if (CurrentHealth < 0)
-            //{
-                KillId = other.gameObject.GetComponentInParent<PlayerManager>().Id;
-            //}
             SetData(CurrentHealth.ToString());
         }
 
@@ -437,7 +422,6 @@ namespace Photon.Pun.Demo.PunBasics
                 stream.SendNext(this.IsFiring);
                 stream.SendNext(CurrentHealth);
                 stream.SendNext(this.Id);
-                //stream.SendNext(this.KillId);
             }
             else
             {
@@ -445,7 +429,6 @@ namespace Photon.Pun.Demo.PunBasics
                 this.IsFiring = (bool)stream.ReceiveNext();
                 CurrentHealth = (float)stream.ReceiveNext();
                 this.Id = (float)stream.ReceiveNext();
-                //this.KillId = (float)stream.ReceiveNext();
             }
         }
 
