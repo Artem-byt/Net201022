@@ -8,6 +8,8 @@
 // <author>developer@exitgames.com</author>
 // --------------------------------------------------------------------------------------------------------------------
 
+using ExitGames.Client.Photon;
+using Photon.Realtime;
 using PlayFab;
 using PlayFab.ClientModels;
 using System;
@@ -429,6 +431,8 @@ namespace Photon.Pun.Demo.PunBasics
                 this.Id = (float)stream.ReceiveNext();
             }
         }
+
+
 
         #endregion
     }
