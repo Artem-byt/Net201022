@@ -26,7 +26,7 @@ namespace Photon.Pun.Demo.PunBasics
     /// Player manager.
     /// Handles fire Input and Beams.
     /// </summary>
-    public class PlayerManager : MonoBehaviourPunCallbacks, IPunObservable
+    public class PlayerManager : MonoBehaviourPunCallbacks, IPunObservable, IOnEventCallback
     {
         #region Public Fields
 
@@ -37,7 +37,7 @@ namespace Photon.Pun.Demo.PunBasics
         [Tooltip("The local player instance. Use this to know if the local player is represented in the Scene")]
         public static GameObject LocalPlayerInstance;
 
-        public CharacterResult CharacterResult;
+        public CharacterResult CharacterResult { get; set; }
 
 
         #endregion
@@ -80,6 +80,7 @@ namespace Photon.Pun.Demo.PunBasics
         /// </summary>
         public void Awake()
         {
+            PhotonNetwork.AddCallbackTarget(this);
             if (this.beams == null)
             {
                 Debug.LogError("<Color=Red><b>Missing</b></Color> Beams Reference.", this);
@@ -169,8 +170,8 @@ namespace Photon.Pun.Demo.PunBasics
 
             if (playerUiStatsPrefab != null && photonView.IsMine)
             {
-                GameObject _uiGo = Instantiate(this.playerUiStatsPrefab);
-                _uiGo.SendMessage("SetTarget", this, SendMessageOptions.RequireReceiver);
+                _characterPlayUI = Instantiate(this.playerUiStatsPrefab).GetComponentInChildren<CharacterStatsUI>();
+                _characterPlayUI.SendMessage("SetTarget", this, SendMessageOptions.RequireReceiver);
             }
 
             if (this.playerUiPrefab != null)
@@ -230,11 +231,11 @@ namespace Photon.Pun.Demo.PunBasics
             if (photonView.IsMine)
             {
                 this.ProcessInputs();
-                if (CurrentHealth <= 0f && !this.leavingRoom)
-                {
-                    Debug.Log(CurrentHealth.ToString() + " : CurrentHealth");
-                    this.leavingRoom = PhotonNetwork.LeaveRoom();
-                }
+                //if (CurrentHealth <= 0f && !this.leavingRoom)
+                //{
+                //    Debug.Log(CurrentHealth.ToString() + " : CurrentHealth");
+                //    this.leavingRoom = PhotonNetwork.LeaveRoom();
+                //}
 
                 if (this.IsHealing)
                 {
@@ -298,6 +299,16 @@ namespace Photon.Pun.Demo.PunBasics
             }
              ;
             CurrentHealth -= 0.1f;
+            if (CurrentHealth < 0)
+            {
+                Debug.Log("SendData");
+                int killId = other.GetComponentInParent<PlayerManager>().photonView.ViewID;
+                RaiseEventOptions raiseEventOptions = new RaiseEventOptions();
+                SendOptions sendOptions = new SendOptions { Reliability = true };
+                PhotonNetwork.RaiseEvent(1, killId, raiseEventOptions, sendOptions);
+                Debug.Log(CurrentHealth.ToString() + " : CurrentHealth");
+                this.leavingRoom = PhotonNetwork.LeaveRoom();
+            }
             SetData(CurrentHealth.ToString());
         }
 
@@ -322,7 +333,18 @@ namespace Photon.Pun.Demo.PunBasics
             }
 
             // we slowly affect health when beam is constantly hitting us, so player has to move to prevent death.
-            CurrentHealth -= 0.1f * Time.deltaTime; ;
+            CurrentHealth -= 0.1f * Time.deltaTime;
+            if (CurrentHealth < 0)
+            {
+                Debug.Log("SendData");
+                int killId = other.GetComponentInParent<PlayerManager>().photonView.ViewID;
+                RaiseEventOptions raiseEventOptions = new RaiseEventOptions();
+                SendOptions sendOptions = new SendOptions { Reliability = true };
+                PhotonNetwork.RaiseEvent(1, killId, raiseEventOptions, sendOptions);
+                Debug.Log(CurrentHealth.ToString() + " : CurrentHealth");
+                this.leavingRoom = PhotonNetwork.LeaveRoom();
+            }
+
             SetData(CurrentHealth.ToString());
         }
 
@@ -355,8 +377,8 @@ namespace Photon.Pun.Demo.PunBasics
 
             if(photonView.IsMine)
             {
-                GameObject _uiGo1 = Instantiate(this.playerUiStatsPrefab);
-                _uiGo1.SendMessage("SetTarget", this, SendMessageOptions.RequireReceiver);
+                _characterPlayUI = Instantiate(this.playerUiStatsPrefab).GetComponentInChildren<CharacterStatsUI>();
+                _characterPlayUI.SendMessage("SetTarget", this, SendMessageOptions.RequireReceiver);
             }
 
         }
@@ -430,9 +452,47 @@ namespace Photon.Pun.Demo.PunBasics
                 CurrentHealth = (float)stream.ReceiveNext();
                 this.Id = (float)stream.ReceiveNext();
             }
+
+
         }
 
+        public void OnEvent(EventData photonEvent)
+        {
+            
+            switch (photonEvent.Code)
+            {
+                case 1:
+                    int killId = (int)photonEvent.CustomData;
+                    Debug.Log("GetData + " + killId.ToString());
+                    if (killId == photonView.ViewID)
+                    {
 
+                        ChangeClientStatistics();
+                    }
+                    break;
+            }
+                
+
+
+        }
+
+        private void ChangeClientStatistics()
+        {
+            CharacterPlayFabCall.GetCHaracterStatistics(AddCharacterXP, CharacterResult.CharacterId);
+        }
+
+        private void AddCharacterXP(Dictionary<string, int> currentstatistics)
+        {
+            currentstatistics[CharacterPlayFabCall.XP] += 123;
+
+            CharacterPlayFabCall.UpdateCharacterStatistics(UpdateUIStatistics, CharacterResult.CharacterId, currentstatistics);
+
+        }
+
+        private void UpdateUIStatistics()
+        {
+            CharacterPlayFabCall.GetCHaracterStatistics(_characterPlayUI.UpdateUIStatistics, CharacterResult.CharacterId);
+        }
 
         #endregion
     }

@@ -29,6 +29,11 @@ public class CharacterStatsUI : MonoBehaviour
 
     private void Start()
     {
+        UpdateClientStatistics();
+    }
+
+    public void UpdateClientStatistics()
+    {
         CharacterPlayFabCall.GetCHaracterStatistics(UpdateUIStatistics, _target.CharacterResult.CharacterId);
     }
 
