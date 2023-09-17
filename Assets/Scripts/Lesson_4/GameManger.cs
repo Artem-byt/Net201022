@@ -29,7 +29,7 @@ public class GameManger : MonoBehaviourPunCallbacks
     {
         //in case we started this demo with the wrong scene being active, simply load the menu scene
         _CharacterUI.OnStartGame += InstantiatePlayer;
-
+        PhotonNetwork.AutomaticallySyncScene = true;
         if (!PhotonNetwork.IsConnected)
         {
             SceneManager.LoadScene("Lesson_4");
