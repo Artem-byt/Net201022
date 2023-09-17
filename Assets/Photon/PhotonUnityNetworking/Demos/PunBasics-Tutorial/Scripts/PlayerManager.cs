@@ -70,6 +70,8 @@ namespace Photon.Pun.Demo.PunBasics
         }
 
         private CharacterStatsUI _characterPlayUI;
+        private int _damage;
+        private float _damageModifier = 0.1f;
 
         #endregion
 
@@ -104,6 +106,7 @@ namespace Photon.Pun.Demo.PunBasics
                 Debug.Log(_playFabId + " : PlayFabId");
             }, error => Debug.Log("Error playFabId"));
 
+            CharacterPlayFabCall.GetCHaracterStatistics(UpdateClientDamage, CharacterResult.CharacterId);
             CurrentHealth = 1f;
             SetData("1");
 
@@ -111,6 +114,11 @@ namespace Photon.Pun.Demo.PunBasics
             // #Critical
             // we flag as don't destroy on load so that instance survives level synchronization, thus giving a seamless experience when levels load.
             DontDestroyOnLoad(gameObject);
+        }
+
+        private void UpdateClientDamage(Dictionary<string, int> statistics)
+        {
+            _damage = statistics[CharacterPlayFabCall.DAMAGE];
         }
 
         private void SetData(string health)
@@ -298,7 +306,7 @@ namespace Photon.Pun.Demo.PunBasics
                 return;
             }
              ;
-            CurrentHealth -= 0.1f;
+            CurrentHealth -= _damage*_damageModifier;
             if (CurrentHealth < 0)
             {
                 Debug.Log("SendData");
@@ -333,7 +341,7 @@ namespace Photon.Pun.Demo.PunBasics
             }
 
             // we slowly affect health when beam is constantly hitting us, so player has to move to prevent death.
-            CurrentHealth -= 0.1f * Time.deltaTime;
+            CurrentHealth -= _damage * _damageModifier * Time.deltaTime;
             if (CurrentHealth < 0)
             {
                 Debug.Log("SendData");
