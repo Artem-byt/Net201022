@@ -26,7 +26,7 @@ public static class CharacterPlayFabCall
             {
                 { LEVEL,1},
                 { XP,0},
-                { DAMAGE,0},
+                { DAMAGE,1},
                 { GOLD, 0 },
                 { HP,1}
             };
