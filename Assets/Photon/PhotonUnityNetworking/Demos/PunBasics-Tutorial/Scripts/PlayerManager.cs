@@ -106,7 +106,7 @@ namespace Photon.Pun.Demo.PunBasics
                 Debug.Log(_playFabId + " : PlayFabId");
             }, error => Debug.Log("Error playFabId"));
 
-            CharacterPlayFabCall.GetCHaracterStatistics(UpdateClientDamage, CharacterResult.CharacterId);
+            
             CurrentHealth = 1f;
             SetData("1");
 
@@ -191,7 +191,10 @@ namespace Photon.Pun.Demo.PunBasics
             {
                 Debug.LogWarning("<Color=Red><b>Missing</b></Color> PlayerUiPrefab reference on player Prefab.", this);
             }
-
+            if (photonView.IsMine)
+            {
+                CharacterPlayFabCall.GetCHaracterStatistics(UpdateClientDamage, CharacterResult.CharacterId);
+            }
 #if UNITY_5_4_OR_NEWER
             // Unity 5.4 has a new scene management. register a method to call CalledOnLevelWasLoaded.
             UnityEngine.SceneManagement.SceneManager.sceneLoaded += OnSceneLoaded;
