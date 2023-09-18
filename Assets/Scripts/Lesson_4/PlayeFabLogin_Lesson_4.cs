@@ -37,7 +37,7 @@ public class PlayeFabLogin_Lesson_4 : MonoBehaviour
     private string _pass;
     private string _username;
 
-    private const string AuthGuidKey ="authorization-guid";
+    //private const string AuthGuidKey ="authorization-guid-for-PF";
 
     public void Awake()
     {
@@ -67,19 +67,19 @@ public class PlayeFabLogin_Lesson_4 : MonoBehaviour
         }
 
         _loadingAnimation.SetRotating();
-        var needCreation = PlayerPrefs.HasKey(AuthGuidKey);
-        var id = PlayerPrefs.GetString(AuthGuidKey, Guid.NewGuid().ToString());
+        //var needCreation = PlayerPrefs.HasKey(AuthGuidKey);
+        //var id = PlayerPrefs.GetString(AuthGuidKey, Guid.NewGuid().ToString());
         PlayFabClientAPI.LoginWithCustomID(new LoginWithCustomIDRequest()
         {
-            CustomId = id,
-            CreateAccount = !needCreation
+            CustomId = Guid.NewGuid().ToString(),
+            CreateAccount = true
         }, success =>
         {
             Debug.Log("Created Account with custom id");
             _loadingAnimation.SetRotating();
             Debug.Log("PlayFabId = " + success.PlayFabId);
             SceneManager.LoadScene("Lesson_4_Lobby");
-            PlayerPrefs.SetString(AuthGuidKey, id);
+            //PlayerPrefs.SetString(AuthGuidKey, id);
         }, OnFailure);
     }
 
