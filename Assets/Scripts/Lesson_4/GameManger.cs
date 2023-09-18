@@ -3,6 +3,8 @@ using Photon.Pun;
 using Photon.Realtime;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using PlayFab.ClientModels;
+using System;
 
 public class GameManger : MonoBehaviourPunCallbacks
 {
@@ -17,49 +19,76 @@ public class GameManger : MonoBehaviourPunCallbacks
     [SerializeField]
     private GameObject playerPrefab;
 
+    [SerializeField] private PrepareCharacterUI _CharacterUI;
 
     #endregion
 
     #region MonoBehaviour CallBacks
 
-    void Start()
+    private void Start()
     {
         //in case we started this demo with the wrong scene being active, simply load the menu scene
-
+        _CharacterUI.OnStartGame += InstantiatePlayer;
         if (!PhotonNetwork.IsConnected)
         {
-            SceneManager.LoadScene("PunBasics-Launcher");
+            SceneManager.LoadScene("Lesson_4");
 
             return;
         }
 
-        if (playerPrefab == null)
-        { // #Tip Never assume public properties of Components are filled up properly, always check and inform the developer of it.
+        if (PhotonNetwork.InRoom && PlayerManager.LocalPlayerInstance == null)
+        {
+            _CharacterUI.SwitchStateUICharacters(true, false);
+        }
 
-            Debug.LogError("<Color=Red><b>Missing</b></Color> playerPrefab Reference. Please set it up in GameObject 'Game Manager'", this);
+
+
+        //if (playerPrefab == null)
+        //{ // #Tip Never assume public properties of Components are filled up properly, always check and inform the developer of it.
+
+        //    Debug.LogError("<Color=Red><b>Missing</b></Color> playerPrefab Reference. Please set it up in GameObject 'Game Manager'", this);
+        //}
+        //else
+        //{
+
+
+        //    if (PhotonNetwork.InRoom && PlayerManager.LocalPlayerInstance == null)
+        //    {
+        //        Debug.LogFormat("We are Instantiating LocalPlayer from {0}", SceneManagerHelper.ActiveSceneName);
+
+        //        // we're in a room. spawn a character for the local player. it gets synced by using PhotonNetwork.Instantiate
+
+        //        PhotonNetwork.Instantiate(this.playerPrefab.name, new Vector3(0f, 5f, 0f), Quaternion.identity, 0);
+        //    }
+        //    else
+        //    {
+
+        //        Debug.LogFormat("Ignoring scene load for {0}", SceneManagerHelper.ActiveSceneName);
+        //    }
+
+
+        //}
+
+    }
+
+    private void InstantiatePlayer(CharacterResult character)
+    {
+        if (PhotonNetwork.InRoom && PlayerManager.LocalPlayerInstance == null)
+        {
+            Debug.LogFormat("We are Instantiating LocalPlayer from {0}", SceneManagerHelper.ActiveSceneName);
+
+            // we're in a room. spawn a character for the local player. it gets synced by using PhotonNetwork.Instantiate
+
+           var go= PhotonNetwork.Instantiate(this.playerPrefab.name, new Vector3(0f, 5f, 0f), Quaternion.identity, 0);
+            go.GetComponentInChildren<PlayerManager>().CharacterResult = character;
         }
         else
         {
 
-
-            if (PhotonNetwork.InRoom && PlayerManager.LocalPlayerInstance == null)
-            {
-                Debug.LogFormat("We are Instantiating LocalPlayer from {0}", SceneManagerHelper.ActiveSceneName);
-
-                // we're in a room. spawn a character for the local player. it gets synced by using PhotonNetwork.Instantiate
-
-                PhotonNetwork.Instantiate(this.playerPrefab.name, new Vector3(0f, 5f, 0f), Quaternion.identity, 0);
-            }
-            else
-            {
-
-                Debug.LogFormat("Ignoring scene load for {0}", SceneManagerHelper.ActiveSceneName);
-            }
-
-
+            Debug.LogFormat("Ignoring scene load for {0}", SceneManagerHelper.ActiveSceneName);
         }
-
     }
+
 
     /// <summary>
     /// MonoBehaviour method called on GameObject by Unity on every frame.
@@ -81,13 +110,14 @@ public class GameManger : MonoBehaviourPunCallbacks
     {
         // Note: it is possible that this monobehaviour is not created (or active) when OnJoinedRoom happens
         // due to that the Start() method also checks if the local player character was network instantiated!
-        if (PlayerManager.LocalPlayerInstance == null)
-        {
-            Debug.LogFormat("We are Instantiating LocalPlayer from {0}", SceneManagerHelper.ActiveSceneName);
+        //_CharacterUI.SwitchStateUICharacters(true, false);
+        //if (PlayerManager.LocalPlayerInstance == null)
+        //{
+        //    Debug.LogFormat("We are Instantiating LocalPlayer from {0}", SceneManagerHelper.ActiveSceneName);
 
-            // we're in a room. spawn a character for the local player. it gets synced by using PhotonNetwork.Instantiate
-            PhotonNetwork.Instantiate(this.playerPrefab.name, new Vector3(0f, 5f, 0f), Quaternion.identity, 0);
-        }
+        //    // we're in a room. spawn a character for the local player. it gets synced by using PhotonNetwork.Instantiate
+        //    PhotonNetwork.Instantiate(this.playerPrefab.name, new Vector3(0f, 5f, 0f), Quaternion.identity, 0);
+        //}
     }
 
     /// <summary>
@@ -159,6 +189,11 @@ public class GameManger : MonoBehaviourPunCallbacks
         Debug.LogFormat("PhotonNetwork : Loading Level : {0}", PhotonNetwork.CurrentRoom.PlayerCount);
 
         PhotonNetwork.LoadLevel("PunBasics-Room for " + PhotonNetwork.CurrentRoom.PlayerCount);
+    }
+
+    private void OnDestroy()
+    {
+        _CharacterUI.OnStartGame -= InstantiatePlayer;
     }
 
     #endregion
