@@ -1,14 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="PlayerManager.cs" company="Exit Games GmbH">
-//   Part of: Photon Unity Networking Demos
-// </copyright>
-// <summary>
-//  Used in PUN Basics Tutorial to deal with the networked player instance
-// </summary>
-// <author>developer@exitgames.com</author>
-// --------------------------------------------------------------------------------------------------------------------
-
-using ExitGames.Client.Photon;
+﻿using ExitGames.Client.Photon;
 using Photon.Realtime;
 using PlayFab;
 using PlayFab.ClientModels;
@@ -22,14 +12,8 @@ namespace Photon.Pun.Demo.PunBasics
 {
 #pragma warning disable 649
 
-    /// <summary>
-    /// Player manager.
-    /// Handles fire Input and Beams.
-    /// </summary>
     public class PlayerManager : MonoBehaviourPunCallbacks, IPunObservable, IOnEventCallback
     {
-        #region Public Fields
-
         //[Tooltip("The current Health of our player")]
         //public float Health = 1f;
         public float CurrentHealth;
@@ -38,11 +22,6 @@ namespace Photon.Pun.Demo.PunBasics
         public static GameObject LocalPlayerInstance;
 
         public CharacterResult CharacterResult { get; set; }
-
-
-        #endregion
-
-        #region Private Fields
 
         [Tooltip("The Player's UI GameObject Prefab")]
         [SerializeField]
@@ -55,7 +34,6 @@ namespace Photon.Pun.Demo.PunBasics
         [SerializeField]
         private GameObject beams;
 
-        //True, when the user is firing
         bool IsFiring;
         bool IsHealing;
 
@@ -73,13 +51,6 @@ namespace Photon.Pun.Demo.PunBasics
         private int _damage;
         private float _damageModifier = 0.1f;
 
-        #endregion
-
-        #region MonoBehaviour CallBacks
-
-        /// <summary>
-        /// MonoBehaviour method called on GameObject by Unity during early initialization phase.
-        /// </summary>
         public void Awake()
         {
             PhotonNetwork.AddCallbackTarget(this);
@@ -110,9 +81,6 @@ namespace Photon.Pun.Demo.PunBasics
             CurrentHealth = 1f;
             SetData("1");
 
-
-            // #Critical
-            // we flag as don't destroy on load so that instance survives level synchronization, thus giving a seamless experience when levels load.
             DontDestroyOnLoad(gameObject);
         }
 
@@ -155,9 +123,6 @@ namespace Photon.Pun.Demo.PunBasics
              error => Debug.Log("OnGetDataError"));
         }
 
-        /// <summary>
-        /// MonoBehaviour method called on GameObject by Unity during initialization phase.
-        /// </summary>
         public void Start()
         {
             CameraWork _cameraWork = gameObject.GetComponent<CameraWork>();
@@ -173,8 +138,6 @@ namespace Photon.Pun.Demo.PunBasics
             {
                 Debug.LogError("<Color=Red><b>Missing</b></Color> CameraWork Component on player Prefab.", this);
             }
-
-            // Create the UI
 
             if (playerUiStatsPrefab != null && photonView.IsMine)
             {
@@ -201,8 +164,6 @@ namespace Photon.Pun.Demo.PunBasics
 #endif
         }
 
-
-
         private void MakePurchase()
         {
             PlayFabClientAPI.PurchaseItem(new PurchaseItemRequest
@@ -220,7 +181,6 @@ namespace Photon.Pun.Demo.PunBasics
 
         public override void OnDisable()
         {
-            // Always call the base to remove callbacks
             base.OnDisable();
 
 #if UNITY_5_4_OR_NEWER
@@ -230,23 +190,11 @@ namespace Photon.Pun.Demo.PunBasics
 
         private bool leavingRoom;
 
-        /// <summary>
-        /// MonoBehaviour method called on GameObject by Unity on every frame.
-        /// Process Inputs if local player.
-        /// Show and hide the beams
-        /// Watch for end of game, when local player health is 0.
-        /// </summary>
         private void Update()
         {
-            // we only process Inputs and check health if we are the local player
             if (photonView.IsMine)
             {
                 this.ProcessInputs();
-                //if (CurrentHealth <= 0f && !this.leavingRoom)
-                //{
-                //    Debug.Log(CurrentHealth.ToString() + " : CurrentHealth");
-                //    this.leavingRoom = PhotonNetwork.LeaveRoom();
-                //}
 
                 if (this.IsHealing)
                 {
@@ -288,12 +236,6 @@ namespace Photon.Pun.Demo.PunBasics
             this.leavingRoom = false;
         }
 
-        /// <summary>
-        /// MonoBehaviour method called when the Collider 'other' enters the trigger.
-        /// Affect Health of the Player if the collider is a beam
-        /// Note: when jumping and firing at the same, you'll find that the player's own beam intersects with itself
-        /// One could move the collider further away to prevent this or check if the beam belongs to the player.
-        /// </summary>
         public void OnTriggerEnter(Collider other)
         {
             if (!photonView.IsMine)
@@ -301,9 +243,6 @@ namespace Photon.Pun.Demo.PunBasics
                 return;
             }
 
-
-            // We are only interested in Beamers
-            // we should be using tags but for the sake of distribution, let's simply check by name.
             if (!other.name.Contains("Beam"))
             {
                 return;
@@ -323,27 +262,18 @@ namespace Photon.Pun.Demo.PunBasics
             SetData(CurrentHealth.ToString());
         }
 
-        /// <summary>
-        /// MonoBehaviour method called once per frame for every Collider 'other' that is touching the trigger.
-        /// We're going to affect health while the beams are interesting the player
-        /// </summary>
-        /// <param name="other">Other.</param>
         public void OnTriggerStay(Collider other)
         {
-            // we dont' do anything if we are not the local player.
             if (!photonView.IsMine)
             {
                 return;
             }
 
-            // We are only interested in Beamers
-            // we should be using tags but for the sake of distribution, let's simply check by name.
             if (!other.name.Contains("Beam"))
             {
                 return;
             }
 
-            // we slowly affect health when beam is constantly hitting us, so player has to move to prevent death.
             CurrentHealth -= _damage * _damageModifier * Time.deltaTime;
             if (CurrentHealth < 0)
             {
@@ -394,9 +324,6 @@ namespace Photon.Pun.Demo.PunBasics
 
         }
 
-        #endregion
-
-        #region Private Methods
 
 
 #if UNITY_5_4_OR_NEWER
@@ -406,15 +333,10 @@ namespace Photon.Pun.Demo.PunBasics
         }
 #endif
 
-        /// <summary>
-        /// Processes the inputs. This MUST ONLY BE USED when the player has authority over this Networked GameObject (photonView.isMine == true)
-        /// </summary>
         void ProcessInputs()
         {
             if (Input.GetButtonDown("Fire1"))
             {
-                // we don't want to fire when we interact with UI buttons for example. IsPointerOverGameObject really means IsPointerOver*UI*GameObject
-                // notice we don't use on on GetbuttonUp() few lines down, because one can mouse down, move over a UI element and release, which would lead to not lower the isFiring Flag.
                 if (EventSystem.current.IsPointerOverGameObject())
                 {
                     //	return;
@@ -442,10 +364,6 @@ namespace Photon.Pun.Demo.PunBasics
                 }
             }
         }
-
-        #endregion
-
-        #region IPunObservable implementation
 
         public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
         {
@@ -504,7 +422,5 @@ namespace Photon.Pun.Demo.PunBasics
         {
             CharacterPlayFabCall.GetCHaracterStatistics(_characterPlayUI.UpdateUIStatistics, CharacterResult.CharacterId);
         }
-
-        #endregion
     }
 }
