@@ -68,7 +68,6 @@ namespace Photon.Pun.Demo.PunBasics
             if (photonView.IsMine)
             {
                 LocalPlayerInstance = gameObject;
-                MakePurchase();
             }
 
             PlayFabClientAPI.GetAccountInfo(new GetAccountInfoRequest(), result =>
@@ -77,9 +76,8 @@ namespace Photon.Pun.Demo.PunBasics
                 Debug.Log(_playFabId + " : PlayFabId");
             }, error => Debug.Log("Error playFabId"));
 
-            
+
             CurrentHealth = 1f;
-            SetData("1");
 
             DontDestroyOnLoad(gameObject);
         }
@@ -87,23 +85,6 @@ namespace Photon.Pun.Demo.PunBasics
         private void UpdateClientDamage(Dictionary<string, int> statistics)
         {
             _damage = statistics[CharacterPlayFabCall.DAMAGE];
-        }
-
-        private void SetData(string health)
-        {
-            PlayFabClientAPI.UpdateUserData(new UpdateUserDataRequest
-            {
-                Data = new Dictionary<string, string>
-                {
-                   { "Health", health}
-                }
-            },
-           result =>
-           {
-               Debug.Log("Update User Data");
-               GetUserData(_playFabId, "Health");
-           },
-           error => Debug.Log("OnLoginError"));
         }
 
         private void GetUserData(string PlayFabId, string keyData)
@@ -227,7 +208,6 @@ namespace Photon.Pun.Demo.PunBasics
             {
                 Debug.Log("Complete ConsumeItem");
                 CurrentHealth += 0.5f;
-                SetData(CurrentHealth.ToString());
             }, error => Debug.Log("Error ConsumeItem"));
         }
 
@@ -248,7 +228,7 @@ namespace Photon.Pun.Demo.PunBasics
                 return;
             }
              ;
-            CurrentHealth -= _damage*_damageModifier;
+            CurrentHealth -= _damage * _damageModifier;
             if (CurrentHealth < 0)
             {
                 Debug.Log("SendData");
@@ -259,7 +239,6 @@ namespace Photon.Pun.Demo.PunBasics
                 Debug.Log(CurrentHealth.ToString() + " : CurrentHealth");
                 this.leavingRoom = PhotonNetwork.LeaveRoom();
             }
-            SetData(CurrentHealth.ToString());
         }
 
         public void OnTriggerStay(Collider other)
@@ -285,8 +264,21 @@ namespace Photon.Pun.Demo.PunBasics
                 Debug.Log(CurrentHealth.ToString() + " : CurrentHealth");
                 this.leavingRoom = PhotonNetwork.LeaveRoom();
             }
+        }
 
-            SetData(CurrentHealth.ToString());
+        public void OnTriggerExit(Collider other)
+        {
+            if (!photonView.IsMine)
+            {
+                return;
+            }
+            if (!other.name.Contains("Beam"))
+            {
+                return;
+            }
+
+
+
         }
 
 
@@ -298,13 +290,6 @@ namespace Photon.Pun.Demo.PunBasics
         }
 #endif
 
-
-        /// <summary>
-        /// MonoBehaviour method called after a new level of index 'level' was loaded.
-        /// We recreate the Player UI because it was destroy when we switched level.
-        /// Also reposition the player if outside the current arena.
-        /// </summary>
-        /// <param name="level">Level index loaded</param>
         void CalledOnLevelWasLoaded(int level)
         {
             // check if we are outside the Arena and if it's the case, spawn around the center of the arena in a safe zone
@@ -316,7 +301,7 @@ namespace Photon.Pun.Demo.PunBasics
             GameObject _uiGo = Instantiate(this.playerUiPrefab);
             _uiGo.SendMessage("SetTarget", this, SendMessageOptions.RequireReceiver);
 
-            if(photonView.IsMine)
+            if (photonView.IsMine)
             {
                 _characterPlayUI = Instantiate(this.playerUiStatsPrefab).GetComponentInChildren<CharacterStatsUI>();
                 _characterPlayUI.SendMessage("SetTarget", this, SendMessageOptions.RequireReceiver);
@@ -350,18 +335,12 @@ namespace Photon.Pun.Demo.PunBasics
 
             if (Input.GetButtonUp("Fire1"))
             {
-                if (this.IsFiring)
-                {
-                    this.IsFiring = false;
-                }
+                this.IsFiring = false;
             }
 
             if (Input.GetKeyDown(KeyCode.V))
             {
-                if (!this.IsHealing)
-                {
-                    this.IsHealing = true;
-                }
+                this.IsHealing = true;
             }
         }
 
@@ -387,7 +366,7 @@ namespace Photon.Pun.Demo.PunBasics
 
         public void OnEvent(EventData photonEvent)
         {
-            
+
             switch (photonEvent.Code)
             {
                 case 1:
@@ -400,7 +379,7 @@ namespace Photon.Pun.Demo.PunBasics
                     }
                     break;
             }
-                
+
 
 
         }

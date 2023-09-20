@@ -27,12 +27,12 @@ public static class CharacterPlayFabCall
                 { LEVEL,1},
                 { XP,0},
                 { DAMAGE,1},
-                { GOLD, 0 },
+                { GOLD,0},
                 { HP,1}
             };
             UpdateCharacterStatistics(callback, result.CharacterId, dictionary); 
         },
-        Debug.LogError);
+        OnFailure);
     }
 
     public static void UpdateCharacterStatistics(Action callback, string characterId, Dictionary<string, int> characterStatistics) 
@@ -45,8 +45,8 @@ public static class CharacterPlayFabCall
         { 
             Debug.Log($"Initial stats set, telling client to update character list");
             callback?.Invoke();
-        }, 
-        Debug.LogError); 
+        },
+        OnFailure); 
     }
 
     public static void GetCHaracterStatistics(Action<Dictionary<string, int>> callback, string characterId)
@@ -59,10 +59,10 @@ public static class CharacterPlayFabCall
         {
             callback?.Invoke(result.CharacterStatistics);
         },
-        error => Debug.Log(error.GenerateErrorReport()));
+        OnFailure);
     }
 
-    public static void CompletePurchaseForCharacterSlots()
+    public static void CompletePurchaseForCharacterSlots(Action successCallback)
     {
         PlayFabClientAPI.PurchaseItem(new PurchaseItemRequest
         {
@@ -74,7 +74,12 @@ public static class CharacterPlayFabCall
         }, result =>
         {
             Debug.Log("Complete Purchase");
-        }, error => Debug.Log("Error Purchase"));
+            successCallback?.Invoke();
+        }, OnFailure);
     }
 
+    private static void OnFailure(PlayFabError error)
+    {
+        Debug.Log($"Error Purchase - {error.GenerateErrorReport()}");
+    }
 }
