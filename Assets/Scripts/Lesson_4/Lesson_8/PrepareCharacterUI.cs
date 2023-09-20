@@ -64,10 +64,7 @@ public class PrepareCharacterUI : MonoBehaviour
             _buttonSlots[i].onClick.AddListener(() => ChooseCreatedCharacter(characterResult));
 
         }
-        //if (result.Characters.Count < 2)
-        //{
-        //    CharacterPlayFabCall.CompletePurchaseForCharacterSlots(OpenCreateNewCharacterPrompt);
-        //}
+
         CheckSlotsForPurchase();
         for (int i = _characters.Count; i < _buttonSlots.Count; i++)
         {
