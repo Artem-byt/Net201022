@@ -49,7 +49,19 @@ public class PlayeFabLogin_Lesson_4 : MonoBehaviour
             CreateAccount = !needCreation 
         };
         _authorizationUI.LoadingAnimation.SetRotating();
-        PlayFabLoginCall.LoginWithCustomId(OnLoginWithCustomId, OnFailure, customIdRequest);
+        PlayFabLoginCall.LoginWithCustomId(OnLoginWithCustomId, OnFailerAutoCreate, customIdRequest);
+    }
+
+    private void OnFailerAutoCreate(PlayFabError error)
+    {
+        _newAccountModel.Id = Guid.NewGuid().ToString();
+        var customIdRequest = new LoginWithCustomIDRequest()
+        {
+            CustomId = _newAccountModel.Id,
+            CreateAccount = true
+        };
+        _authorizationUI.LoadingAnimation.SetRotating();
+        PlayFabLoginCall.LoginWithCustomId(OnLoginWithCustomId, OnFailerAutoCreate, customIdRequest);
     }
 
     private void OnLoginWithCustomId(LoginResult success)

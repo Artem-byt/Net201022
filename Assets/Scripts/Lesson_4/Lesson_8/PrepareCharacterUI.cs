@@ -56,45 +56,60 @@ public class PrepareCharacterUI : MonoBehaviour
 
         for (int i = 0; i < result.Characters.Count; i++)
         {
-            _buttonSlots[i].onClick.RemoveAllListeners();
             _characters.Add(result.Characters[i]);
-            ChangeNameOfButton(_buttonSlots[i], result.Characters[i].CharacterName);
+        }
+        UpdateCharacterSlotsUI();
+    }
 
-            var characterResult = result.Characters[i];
+    private void UpdateCharacterSlotsUI()
+    {
+        for (int i = 0; i < _characters.Count; i++)
+        {
+            _buttonSlots[i].onClick.RemoveAllListeners();
+            ChangeNameOfButton(_buttonSlots[i], _characters[i].CharacterName);
+
+            CharacterResult characterResult = _characters[i];
             _buttonSlots[i].onClick.AddListener(() => ChooseCreatedCharacter(characterResult));
 
         }
 
-        CheckSlotsForPurchase();
+        CheckTokenSlotsCharacterForPurchase();
+
+    }
+
+    private void CheckTokenSlotsCharacterForPurchase()
+    {
+        PLayFabAccountInfoCalls.GetUserInventoryInfo(new GetUserInventoryRequest(),  CheckSlotsAccount);
+    }
+
+    private void PrepareUIEvents()
+    {
         for (int i = _characters.Count; i < _buttonSlots.Count; i++)
         {
-            //продумать счет слотов
             if (slotsCount > 0)
             {
-                OpenCreateNewCharacterPrompt();
+                _buttonSlots[i].GetComponentInChildren<TMP_Text>().text = "Create";
+                _buttonSlots[i].onClick.AddListener(OpenCreateNewCharacterPrompt);
             }
             else
             {
-                CharacterPlayFabCall.CompletePurchaseForCharacterSlots(() => { OpenCreateNewCharacterPrompt(); UpdateAccountStatsInfo(); });
+                _buttonSlots[i].GetComponentInChildren<TMP_Text>().text = "Buy";
+                _buttonSlots[i].onClick.AddListener(() => CharacterPlayFabCall.CompletePurchaseForCharacterSlots(() => { OpenCreateNewCharacterPrompt(); UpdateAccountStatsInfo(); GetCharacters(); }));
             }
-            //_buttonSlots[i]
         }
-    }
-
-    private void CheckSlotsForPurchase()
-    {
-        PLayFabAccountInfoCalls.GetUserInventoryInfo(new GetUserInventoryRequest(),  CheckSlotsAccount);
     }
 
     private void CheckSlotsAccount(GetUserInventoryResult getUserInventoryResult)
     {
         foreach(var itemInstance in getUserInventoryResult.Inventory)
         {
-            if  (itemInstance.ItemInstanceId == ConstantStrings.CHARACTER_TOKEN)
+            Debug.Log(itemInstance.ItemId);
+            if  (itemInstance.ItemId == ConstantStrings.CHARACTER_TOKEN)
             {
                 slotsCount++;
             }
         }
+        PrepareUIEvents();
     }
 
     public void SwitchStateUICharacters(bool characterPrefab, bool CharacterCreatePrefab)

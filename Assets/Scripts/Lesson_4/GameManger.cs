@@ -65,22 +65,22 @@ public class GameManger : MonoBehaviourPunCallbacks
     {
         Debug.Log("OnPlayerEnteredRoom() " + other.NickName);
 
-        if (PhotonNetwork.IsMasterClient)
-        {
-            Debug.LogFormat("OnPlayerEnteredRoom IsMasterClient {0}", PhotonNetwork.IsMasterClient);
-            LoadArena();
-        }
+        //if (PhotonNetwork.IsMasterClient)
+        //{
+        //    Debug.LogFormat("OnPlayerEnteredRoom IsMasterClient {0}", PhotonNetwork.IsMasterClient);
+        //    LoadArena();
+        //}
     }
 
     public override void OnPlayerLeftRoom(Player other)
     {
         Debug.Log("OnPlayerLeftRoom() " + other.NickName);
 
-        if (PhotonNetwork.IsMasterClient)
-        {
-            Debug.LogFormat("OnPlayerEnteredRoom IsMasterClient {0}", PhotonNetwork.IsMasterClient);
-            LoadArena();
-        }
+        //if (PhotonNetwork.IsMasterClient)
+        //{
+        //    Debug.LogFormat("OnPlayerEnteredRoom IsMasterClient {0}", PhotonNetwork.IsMasterClient);
+        //    LoadArena();
+        //}
     }
 
     public override void OnLeftRoom()
@@ -98,17 +98,17 @@ public class GameManger : MonoBehaviourPunCallbacks
         Application.Quit();
     }
 
-    private void LoadArena()
-    {
-        if (!PhotonNetwork.IsMasterClient)
-        {
-            Debug.LogError("PhotonNetwork : Trying to Load a level but we are not the master Client");
-            return;
-        }
+    //private void LoadArena()
+    //{
+    //    if (!PhotonNetwork.IsMasterClient)
+    //    {
+    //        Debug.LogError("PhotonNetwork : Trying to Load a level but we are not the master Client");
+    //        return;
+    //    }
 
-        Debug.LogFormat("PhotonNetwork : Loading Level : {0}", PhotonNetwork.CurrentRoom.PlayerCount);
-        PhotonNetwork.LoadLevel(ConstantStrings.SCENE_LEVEL_ANY + PhotonNetwork.CurrentRoom.PlayerCount);
-    }
+    //    Debug.LogFormat("PhotonNetwork : Loading Level : {0}", PhotonNetwork.CurrentRoom.PlayerCount);
+    //    PhotonNetwork.LoadLevel(ConstantStrings.SCENE_LEVEL_ANY + "1");
+    //}
 
     private void OnDestroy()
     {

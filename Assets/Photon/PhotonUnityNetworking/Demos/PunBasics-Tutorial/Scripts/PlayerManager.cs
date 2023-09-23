@@ -35,7 +35,6 @@ namespace Photon.Pun.Demo.PunBasics
         private GameObject beams;
 
         bool IsFiring;
-        bool IsHealing;
 
         private float _id;
 
@@ -145,21 +144,6 @@ namespace Photon.Pun.Demo.PunBasics
 #endif
         }
 
-        private void MakePurchase()
-        {
-            PlayFabClientAPI.PurchaseItem(new PurchaseItemRequest
-            {
-                CatalogVersion = "1.0",
-                ItemId = "health_potion",
-                Price = 2,
-                VirtualCurrency = "GO"
-
-            }, result =>
-            {
-                Debug.Log("Complete Purchase");
-            }, error => Debug.Log("Error Purchase"));
-        }
-
         public override void OnDisable()
         {
             base.OnDisable();
@@ -176,12 +160,6 @@ namespace Photon.Pun.Demo.PunBasics
             if (photonView.IsMine)
             {
                 this.ProcessInputs();
-
-                if (this.IsHealing)
-                {
-                    this.IsHealing = false;
-                    PlayFabClientAPI.GetUserInventory(new GetUserInventoryRequest(), result => ShowInventory(result), error => { Debug.Log("Error Healing: " + error.GenerateErrorReport()); });
-                }
             }
 
             if (this.beams != null && this.IsFiring != this.beams.activeInHierarchy)
@@ -336,11 +314,6 @@ namespace Photon.Pun.Demo.PunBasics
             if (Input.GetButtonUp("Fire1"))
             {
                 this.IsFiring = false;
-            }
-
-            if (Input.GetKeyDown(KeyCode.V))
-            {
-                this.IsHealing = true;
             }
         }
 
