@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using PlayFab.ClientModels;
 using System;
+using ExitGames.Client.Photon;
 
 public class GameManger : MonoBehaviourPunCallbacks
 {
@@ -14,6 +15,7 @@ public class GameManger : MonoBehaviourPunCallbacks
     private GameObject playerPrefab;
 
     [SerializeField] private PrepareCharacterUI _CharacterUI;
+    [SerializeField] private SpawnModel spawnModel;
 
 
     private void Start()
@@ -37,7 +39,7 @@ public class GameManger : MonoBehaviourPunCallbacks
         if (PhotonNetwork.InRoom && PlayerManager.LocalPlayerInstance == null)
         {
             Debug.LogFormat("We are Instantiating LocalPlayer from {0}", SceneManagerHelper.ActiveSceneName);
-           var go= PhotonNetwork.Instantiate(this.playerPrefab.name, new Vector3(0f, 5f, 0f), Quaternion.identity, 0);
+           var go= PhotonNetwork.Instantiate(this.playerPrefab.name, spawnModel.GetSpawn().position, Quaternion.identity, 0);
             go.GetComponentInChildren<PlayerManager>().CharacterResult = character;
         }
         else
@@ -64,6 +66,9 @@ public class GameManger : MonoBehaviourPunCallbacks
     public override void OnPlayerEnteredRoom(Player other)
     {
         Debug.Log("OnPlayerEnteredRoom() " + other.NickName);
+        RaiseEventOptions raiseEventOptions = new RaiseEventOptions();
+        SendOptions sendOptions = new SendOptions { Reliability = true };
+        PhotonNetwork.RaiseEvent(2, spawnModel.IsFreePoition, raiseEventOptions, sendOptions);
     }
 
     public override void OnPlayerLeftRoom(Player other)
