@@ -1,5 +1,4 @@
-using System.Collections;
-using System.Collections.Generic;
+using Photon.Pun;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -14,7 +13,7 @@ public class CloseGame : MonoBehaviour
 
     private void CloseGameApp()
     {
-        Application.Quit();
+        PhotonNetwork.LeaveRoom();
     }
 
     private void OnDestroy()

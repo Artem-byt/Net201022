@@ -5,8 +5,10 @@ using PlayFab.ClientModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 namespace Photon.Pun.Demo.PunBasics
 {
@@ -30,15 +32,26 @@ namespace Photon.Pun.Demo.PunBasics
         [SerializeField]
         private GameObject playerUiStatsPrefab;
 
+        [SerializeField]
+        private Rigidbody _rigidBody;
+
+        [SerializeField]
+        private float _force = 2f;
+
         [Tooltip("The Beams GameObject to control")]
         [SerializeField]
         private GameObject beams;
 
+        [SerializeField]
+        private PlayerTryAttempts _playerTryAttempts;
+
         bool IsFiring;
+        private bool _isEndGame;
 
         private float _id;
 
         private string _playFabId;
+        public Transform SpawnPosition;
 
         public float Id
         {
@@ -103,6 +116,12 @@ namespace Photon.Pun.Demo.PunBasics
              error => Debug.Log("OnGetDataError"));
         }
 
+        public void SpawnPlayer()
+        {
+            transform.position = SpawnPosition.position;
+            gameObject.SetActive(true);
+        }
+
         public void Start()
         {
             CameraWork _cameraWork = gameObject.GetComponent<CameraWork>();
@@ -157,16 +176,15 @@ namespace Photon.Pun.Demo.PunBasics
 
         private void Update()
         {
-            if (photonView.IsMine)
+            if (photonView.IsMine && !_isEndGame)
             {
                 this.ProcessInputs();
             }
 
-            if (this.beams != null && this.IsFiring != this.beams.activeInHierarchy)
+            if (this.beams != null && this.IsFiring != this.beams.activeInHierarchy && !_isEndGame)
             {
                 this.beams.SetActive(this.IsFiring);
             }
-
 
         }
 
@@ -215,7 +233,9 @@ namespace Photon.Pun.Demo.PunBasics
                 SendOptions sendOptions = new SendOptions { Reliability = true };
                 PhotonNetwork.RaiseEvent(1, killId, raiseEventOptions, sendOptions);
                 Debug.Log(CurrentHealth.ToString() + " : CurrentHealth");
-                this.leavingRoom = PhotonNetwork.LeaveRoom();
+                gameObject.SetActive(false);
+                _playerTryAttempts.OnTriedAttempt();
+                
             }
         }
 
@@ -240,7 +260,8 @@ namespace Photon.Pun.Demo.PunBasics
                 SendOptions sendOptions = new SendOptions { Reliability = true };
                 PhotonNetwork.RaiseEvent(1, killId, raiseEventOptions, sendOptions);
                 Debug.Log(CurrentHealth.ToString() + " : CurrentHealth");
-                this.leavingRoom = PhotonNetwork.LeaveRoom();
+                gameObject.SetActive(false);
+                _playerTryAttempts.OnTriedAttempt();
             }
         }
 
@@ -311,10 +332,42 @@ namespace Photon.Pun.Demo.PunBasics
                 }
             }
 
+            if (Input.GetKeyDown(KeyCode.Space))
+            {
+                _rigidBody.AddForce(Vector3.left * _force);
+
+            }
+
             if (Input.GetButtonUp("Fire1"))
             {
                 this.IsFiring = false;
             }
+            RotatePlayer();
+
+        }
+
+        private void RotatePlayer()
+        {
+            float h = Input.GetAxis("Horizontal");
+            float v = Input.GetAxis("Vertical");
+
+            Vector3 forward = Camera.main.transform.forward;
+            Vector3 right= Camera.main.transform.right;
+            forward.y = 0;
+            right.y = 0;
+            forward = forward.normalized;
+            right= right.normalized;
+
+            Vector3 forwardRelativeVerticalInput = v * forward;
+            Vector3 roightRelativeVerticalInput = h * right;
+            var movementDirection
+              = forwardRelativeVerticalInput + roightRelativeVerticalInput;
+            if (movementDirection.sqrMagnitude > 1.0f)
+            {
+                movementDirection.Normalize();
+            }
+            Vector3 rotationTarget = this.transform.position + movementDirection;
+            this.transform.LookAt(rotationTarget);
         }
 
         public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
@@ -339,7 +392,6 @@ namespace Photon.Pun.Demo.PunBasics
 
         public void OnEvent(EventData photonEvent)
         {
-
             switch (photonEvent.Code)
             {
                 case 1:
@@ -348,6 +400,16 @@ namespace Photon.Pun.Demo.PunBasics
                     if (killId == photonView.ViewID)
                     {
 
+                        ChangeClientStatistics();
+                    }
+                    break;
+                case 3:
+                    Debug.Log("EndGame");
+                    _isEndGame = true;
+                    this.beams.SetActive(false);
+                    float id = (float)photonEvent.CustomData;
+                    if (id == photonView.ViewID)
+                    {
                         ChangeClientStatistics();
                     }
                     break;
@@ -365,7 +427,7 @@ namespace Photon.Pun.Demo.PunBasics
         private void AddCharacterXP(Dictionary<string, int> currentstatistics)
         {
             currentstatistics[CharacterPlayFabCall.XP] += 123;
-
+            //Добавить метод повышения уровня, всегда до 500 ХР
             CharacterPlayFabCall.UpdateCharacterStatistics(UpdateUIStatistics, CharacterResult.CharacterId, currentstatistics);
 
         }

@@ -398,7 +398,6 @@ GameObject:
   m_Component:
   - component: {fileID: 400030}
   - component: {fileID: 9500000}
-  - component: {fileID: 14300000}
   - component: {fileID: 11454274}
   - component: {fileID: 11449706}
   - component: {fileID: 11400008}
@@ -406,6 +405,8 @@ GameObject:
   - component: {fileID: 5484970}
   - component: {fileID: 11484610}
   - component: {fileID: 11413802}
+  - component: {fileID: 1555333933199965103}
+  - component: {fileID: 1735952581154675549}
   m_Layer: 0
   m_Name: My Robot Kyle -done-1
   m_TagString: Player
@@ -450,24 +451,6 @@ Animator:
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorControllerStateOnDisable: 0
---- !u!143 &14300000
-CharacterController:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 100030}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Height: 1.8
-  m_Radius: 0.5
-  m_SlopeLimit: 45
-  m_StepOffset: 0.3
-  m_SkinWidth: 0.08
-  m_MinMoveDistance: 0
-  m_Center: {x: 0, y: 0.9, z: 0}
 --- !u!114 &11454274
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -496,7 +479,11 @@ MonoBehaviour:
   CurrentHealth: 0
   playerUiPrefab: {fileID: 170056, guid: 43a165223036b1b438d0ea0ad44ab951, type: 3}
   playerUiStatsPrefab: {fileID: 581991048915208538, guid: 12a973293904539499e8543c69738d78, type: 3}
+  _rigidBody: {fileID: 5484970}
+  _force: 100
   beams: {fileID: 170262}
+  _playerTryAttempts: {fileID: 1735952581154675549}
+  SpawnPosition: {fileID: 0}
 --- !u!114 &11400008
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -549,10 +536,10 @@ Rigidbody:
   m_Mass: 1
   m_Drag: 0
   m_AngularDrag: 0.05
-  m_UseGravity: 0
+  m_UseGravity: 1
   m_IsKinematic: 0
   m_Interpolate: 0
-  m_Constraints: 0
+  m_Constraints: 80
   m_CollisionDetection: 0
 --- !u!114 &11484610
 MonoBehaviour:
@@ -603,6 +590,35 @@ MonoBehaviour:
     LayerIndex: 0
   - SynchronizeType: 0
     LayerIndex: 1
+--- !u!65 &1555333933199965103
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 100030}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 0.5, y: 1.8, z: 1}
+  m_Center: {x: 0, y: 0.91, z: 0}
+--- !u!114 &1735952581154675549
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 100030}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 10615643ee80b084fba2f984fdbc5176, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _attempts: 3
+  _playerManager: {fileID: 11449706}
+  RestartButton: {fileID: 0}
+  Text: {fileID: 0}
 --- !u!1 &100032
 GameObject:
   m_ObjectHideFlags: 0

@@ -6,6 +6,8 @@ using UnityEngine.SceneManagement;
 using PlayFab.ClientModels;
 using System;
 using ExitGames.Client.Photon;
+using TMPro;
+using UnityEngine.UI;
 
 public class GameManger : MonoBehaviourPunCallbacks
 {
@@ -17,6 +19,12 @@ public class GameManger : MonoBehaviourPunCallbacks
     [SerializeField] private PrepareCharacterUI _CharacterUI;
     [SerializeField] private SpawnModel spawnModel;
 
+
+    [Header("Restart UI")]
+    [SerializeField]
+    private Button _restartBtn;
+    [SerializeField]
+    private TMP_Text _statusText;
 
     private void Start()
     {
@@ -39,8 +47,12 @@ public class GameManger : MonoBehaviourPunCallbacks
         if (PhotonNetwork.InRoom && PlayerManager.LocalPlayerInstance == null)
         {
             Debug.LogFormat("We are Instantiating LocalPlayer from {0}", SceneManagerHelper.ActiveSceneName);
-           var go= PhotonNetwork.Instantiate(this.playerPrefab.name, spawnModel.GetSpawn().position, Quaternion.identity, 0);
+            var spawn = spawnModel.GetSpawn();
+           var go= PhotonNetwork.Instantiate(this.playerPrefab.name, spawn.position, Quaternion.identity, 0);
             go.GetComponentInChildren<PlayerManager>().CharacterResult = character;
+            go.GetComponentInChildren<PlayerManager>().SpawnPosition = spawn;
+            go.GetComponentInChildren<PlayerTryAttempts>().RestartButton = _restartBtn;
+            go.GetComponentInChildren<PlayerTryAttempts>().Text = _statusText;
         }
         else
         {
