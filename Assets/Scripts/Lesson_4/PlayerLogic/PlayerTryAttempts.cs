@@ -11,7 +11,7 @@ public class PlayerTryAttempts : MonoBehaviour
 
     public Button RestartButton;
     public TMP_Text Text;
-    private void Start()
+    public void Initialize()
     {
         RestartButton.onClick.AddListener(TryAttempt);
     }
@@ -39,7 +39,11 @@ public class PlayerTryAttempts : MonoBehaviour
 
     private void OnDestroy()
     {
-        RestartButton.onClick.RemoveAllListeners();
+        if(RestartButton!=null)
+        {
+            RestartButton.onClick.RemoveAllListeners();
+        }
+      
     }
 
 }

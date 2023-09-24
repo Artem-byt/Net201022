@@ -53,6 +53,7 @@ public class GameManger : MonoBehaviourPunCallbacks
             go.GetComponentInChildren<PlayerManager>().SpawnPosition = spawn;
             go.GetComponentInChildren<PlayerTryAttempts>().RestartButton = _restartBtn;
             go.GetComponentInChildren<PlayerTryAttempts>().Text = _statusText;
+            go.GetComponentInChildren<PlayerTryAttempts>().Initialize();
         }
         else
         {

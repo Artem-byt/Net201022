@@ -45,6 +45,9 @@ namespace Photon.Pun.Demo.PunBasics
         [SerializeField]
         private PlayerTryAttempts _playerTryAttempts;
 
+        [SerializeField]
+        private PLayerGroundChecker _pLayerGroundChecker;
+
         bool IsFiring;
         private bool _isEndGame;
 
@@ -332,9 +335,9 @@ namespace Photon.Pun.Demo.PunBasics
                 }
             }
 
-            if (Input.GetKeyDown(KeyCode.Space))
+            if (Input.GetKeyDown(KeyCode.Space) && _pLayerGroundChecker.isGround)
             {
-                _rigidBody.AddForce(Vector3.left * _force);
+                _rigidBody.AddForce(Vector3.up * _force);
 
             }
 
