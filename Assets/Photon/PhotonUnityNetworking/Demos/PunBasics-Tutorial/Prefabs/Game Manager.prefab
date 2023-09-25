@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 2092528967081193277}
   - component: {fileID: 5686793398087658099}
   - component: {fileID: 4262568596330526550}
+  - component: {fileID: 957548234285247654}
   m_Layer: 0
   m_Name: Game Manager
   m_TagString: Untagged
@@ -48,6 +49,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   playerPrefab: {fileID: 100030, guid: 139ae52f59e150a4d8d4220b13d3df22, type: 3}
   _CharacterUI: {fileID: 0}
+  spawnModel: {fileID: 0}
+  _restartBtn: {fileID: 0}
+  _statusText: {fileID: 0}
 --- !u!114 &5686793398087658099
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -79,3 +83,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _btnClose: {fileID: 0}
+--- !u!114 &957548234285247654
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 176684}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bc25f7f8c3581d947ae4c6d349586af4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

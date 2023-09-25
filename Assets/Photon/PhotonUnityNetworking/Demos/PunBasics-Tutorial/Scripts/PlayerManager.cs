@@ -27,10 +27,13 @@ namespace Photon.Pun.Demo.PunBasics
 
         [Tooltip("The Player's UI GameObject Prefab")]
         [SerializeField]
-        private GameObject playerUiPrefab;
+        private GameObject _playerUiPrefab;
 
         [SerializeField]
-        private GameObject playerUiStatsPrefab;
+        private GameObject _endGamePrefab;
+
+        [SerializeField]
+        private GameObject _playerUiStatsPrefab;
 
         [SerializeField]
         private Rigidbody _rigidBody;
@@ -40,7 +43,7 @@ namespace Photon.Pun.Demo.PunBasics
 
         [Tooltip("The Beams GameObject to control")]
         [SerializeField]
-        private GameObject beams;
+        private GameObject _beams;
 
         [SerializeField]
         private PlayerTryAttempts _playerTryAttempts;
@@ -54,6 +57,7 @@ namespace Photon.Pun.Demo.PunBasics
         private float _id;
 
         private string _playFabId;
+        private GameObject _endGameUI;
         public Transform SpawnPosition;
 
         public float Id
@@ -69,13 +73,13 @@ namespace Photon.Pun.Demo.PunBasics
         public void Awake()
         {
             PhotonNetwork.AddCallbackTarget(this);
-            if (this.beams == null)
+            if (this._beams == null)
             {
                 Debug.LogError("<Color=Red><b>Missing</b></Color> Beams Reference.", this);
             }
             else
             {
-                this.beams.SetActive(false);
+                this._beams.SetActive(false);
             }
 
             // #Important
@@ -141,15 +145,21 @@ namespace Photon.Pun.Demo.PunBasics
                 Debug.LogError("<Color=Red><b>Missing</b></Color> CameraWork Component on player Prefab.", this);
             }
 
-            if (playerUiStatsPrefab != null && photonView.IsMine)
+            if (_playerUiStatsPrefab != null && photonView.IsMine)
             {
-                _characterPlayUI = Instantiate(this.playerUiStatsPrefab).GetComponentInChildren<CharacterStatsUI>();
+                _characterPlayUI = Instantiate(this._playerUiStatsPrefab).GetComponentInChildren<CharacterStatsUI>();
                 _characterPlayUI.SendMessage("SetTarget", this, SendMessageOptions.RequireReceiver);
             }
 
-            if (this.playerUiPrefab != null)
+            if (_playerUiStatsPrefab != null && photonView.IsMine)
             {
-                GameObject _uiGo = Instantiate(this.playerUiPrefab);
+                _endGameUI = Instantiate(_endGamePrefab);
+                _endGameUI.transform.SetParent(GameObject.Find("Canvas").GetComponent<Transform>(), false);
+            }
+
+            if (this._playerUiPrefab != null)
+            {
+                GameObject _uiGo = Instantiate(this._playerUiPrefab);
                 _uiGo.SendMessage("SetTarget", this, SendMessageOptions.RequireReceiver);
             }
             else
@@ -184,9 +194,9 @@ namespace Photon.Pun.Demo.PunBasics
                 this.ProcessInputs();
             }
 
-            if (this.beams != null && this.IsFiring != this.beams.activeInHierarchy && !_isEndGame)
+            if (this._beams != null && this.IsFiring != this._beams.activeInHierarchy && !_isEndGame)
             {
-                this.beams.SetActive(this.IsFiring);
+                this._beams.SetActive(this.IsFiring);
             }
 
         }
@@ -300,12 +310,12 @@ namespace Photon.Pun.Demo.PunBasics
                 transform.position = new Vector3(0f, 5f, 0f);
             }
 
-            GameObject _uiGo = Instantiate(this.playerUiPrefab);
+            GameObject _uiGo = Instantiate(this._playerUiPrefab);
             _uiGo.SendMessage("SetTarget", this, SendMessageOptions.RequireReceiver);
 
             if (photonView.IsMine)
             {
-                _characterPlayUI = Instantiate(this.playerUiStatsPrefab).GetComponentInChildren<CharacterStatsUI>();
+                _characterPlayUI = Instantiate(this._playerUiStatsPrefab).GetComponentInChildren<CharacterStatsUI>();
                 _characterPlayUI.SendMessage("SetTarget", this, SendMessageOptions.RequireReceiver);
             }
 
@@ -409,11 +419,16 @@ namespace Photon.Pun.Demo.PunBasics
                 case 3:
                     Debug.Log("EndGame");
                     _isEndGame = true;
-                    this.beams.SetActive(false);
+                    this._beams.SetActive(false);
                     float id = (float)photonEvent.CustomData;
                     if (id == photonView.ViewID)
                     {
+                        _endGameUI.GetComponent<TMP_Text>().text = "Победитель";
                         ChangeClientStatistics();
+                    }
+                    else
+                    {
+                        _endGameUI.GetComponent<TMP_Text>().text = "Проигравший";
                     }
                     break;
             }
