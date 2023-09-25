@@ -133,11 +133,11 @@ namespace Photon.Pun.Demo.PunBasics
             targetRenderer = this.target.GetComponentInChildren<Renderer>();
 
 
-            CharacterController _characterController = this.target.GetComponent<CharacterController> ();
+            BoxCollider _characterBoxCollider = this.target.GetComponent<BoxCollider> ();
 
 			// Get data from the Player that won't change during the lifetime of this Component
-			if (_characterController != null){
-				characterControllerHeight = _characterController.height;
+			if (_characterBoxCollider != null){
+				characterControllerHeight = _characterBoxCollider.size.y;
 			}
 
 			if (playerNameText != null) {

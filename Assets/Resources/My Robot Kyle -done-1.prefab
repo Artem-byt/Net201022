@@ -478,11 +478,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   CurrentHealth: 0
-  playerUiPrefab: {fileID: 170056, guid: 43a165223036b1b438d0ea0ad44ab951, type: 3}
-  playerUiStatsPrefab: {fileID: 581991048915208538, guid: 12a973293904539499e8543c69738d78, type: 3}
+  _playerUiPrefab: {fileID: 170056, guid: 43a165223036b1b438d0ea0ad44ab951, type: 3}
+  _endGamePrefab: {fileID: 6989387882439189978, guid: 1e8dfe512497b9b4bac40c5ac33c5e54, type: 3}
+  _playerUiStatsPrefab: {fileID: 581991048915208538, guid: 12a973293904539499e8543c69738d78, type: 3}
   _rigidBody: {fileID: 5484970}
   _force: 200
-  beams: {fileID: 170262}
+  _beams: {fileID: 170262}
   _playerTryAttempts: {fileID: 1735952581154675549}
   _pLayerGroundChecker: {fileID: 4183262135398928522}
   SpawnPosition: {fileID: 0}
