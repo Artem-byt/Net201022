@@ -3,6 +3,7 @@ using Photon.Realtime;
 using PlayFab;
 using PlayFab.ClientModels;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using TMPro;
@@ -40,6 +41,17 @@ namespace Photon.Pun.Demo.PunBasics
 
         [SerializeField]
         private float _force = 2f;
+        [SerializeField]
+        private float _forceCast = 50f;
+        [SerializeField]
+        private GameObject _indicatorCastPrefab;
+        
+
+        [SerializeField]
+        private float _maxDistanceCast = 2f;
+
+        [SerializeField]
+        private float _offsetRay = 1f;
 
         [Tooltip("The Beams GameObject to control")]
         [SerializeField]
@@ -53,11 +65,13 @@ namespace Photon.Pun.Demo.PunBasics
 
         bool IsFiring;
         private bool _isEndGame;
+        private bool _isCast;
 
         private float _id;
 
         private string _playFabId;
         private GameObject _endGameUI;
+        private Image _indicatorCast;
         public Transform SpawnPosition;
 
         public float Id
@@ -145,6 +159,12 @@ namespace Photon.Pun.Demo.PunBasics
                 Debug.LogError("<Color=Red><b>Missing</b></Color> CameraWork Component on player Prefab.", this);
             }
 
+            if (_indicatorCastPrefab != null && photonView.IsMine) 
+            {
+                _indicatorCast = Instantiate(_indicatorCastPrefab).GetComponentInChildren<Image>();
+                _indicatorCast.transform.SetParent(GameObject.Find("Canvas").GetComponent<Transform>(), false);
+            }
+
             if (_playerUiStatsPrefab != null && photonView.IsMine)
             {
                 _characterPlayUI = Instantiate(this._playerUiStatsPrefab).GetComponentInChildren<CharacterStatsUI>();
@@ -192,13 +212,13 @@ namespace Photon.Pun.Demo.PunBasics
             if (photonView.IsMine && !_isEndGame)
             {
                 this.ProcessInputs();
+
             }
 
             if (this._beams != null && this.IsFiring != this._beams.activeInHierarchy && !_isEndGame)
             {
                 this._beams.SetActive(this.IsFiring);
             }
-
         }
 
         private void ShowInventory(GetUserInventoryResult result)
@@ -248,7 +268,7 @@ namespace Photon.Pun.Demo.PunBasics
                 Debug.Log(CurrentHealth.ToString() + " : CurrentHealth");
                 gameObject.SetActive(false);
                 _playerTryAttempts.OnTriedAttempt();
-                
+
             }
         }
 
@@ -345,6 +365,22 @@ namespace Photon.Pun.Demo.PunBasics
                 }
             }
 
+            if (Input.GetButtonDown("Fire2"))
+            {
+                if (EventSystem.current.IsPointerOverGameObject())
+                {
+                    //	return;
+                }
+
+                if (!_isCast)
+                {
+                    _isCast = true;
+                    _indicatorCast.color = Color.red;
+                    Cast();
+                    StartCoroutine(KDCast());
+                }
+            }
+
             if (Input.GetKeyDown(KeyCode.Space) && _pLayerGroundChecker.isGround)
             {
                 _rigidBody.AddForce(Vector3.up * _force);
@@ -358,6 +394,33 @@ namespace Photon.Pun.Demo.PunBasics
             RotatePlayer();
 
         }
+        private IEnumerator KDCast()
+        {
+            yield return new WaitForSeconds(2);
+            _indicatorCast.color = Color.green;
+            _isCast = false;
+        }
+
+        private void Cast()
+        {
+            Debug.Log("Cast");
+            var start = new Vector3(transform.position.x, transform.position.y + _offsetRay, transform.position.z);
+            Ray ray = new Ray(start, transform.forward);
+            bool raycast = Physics.SphereCast(ray, 1, out var hitInfo, _maxDistanceCast);
+ 
+            if (raycast && hitInfo.rigidbody != null)
+            {
+                Debug.Log(hitInfo.rigidbody.GetComponent<PlayerManager>().Id);
+                RaiseEventOptions raiseEventOptions = new RaiseEventOptions();
+                SendOptions sendOptions = new SendOptions { Reliability = true };
+                float ID = hitInfo.rigidbody.GetComponent<PlayerManager>().Id;
+                PhotonNetwork.RaiseEvent(4, new CastHit
+                {
+                    Direction = ray.direction,
+                    Id = ID
+                }, raiseEventOptions, sendOptions);
+            }
+        }
 
         private void RotatePlayer()
         {
@@ -365,11 +428,11 @@ namespace Photon.Pun.Demo.PunBasics
             float v = Input.GetAxis("Vertical");
 
             Vector3 forward = Camera.main.transform.forward;
-            Vector3 right= Camera.main.transform.right;
+            Vector3 right = Camera.main.transform.right;
             forward.y = 0;
             right.y = 0;
             forward = forward.normalized;
-            right= right.normalized;
+            right = right.normalized;
 
             Vector3 forwardRelativeVerticalInput = v * forward;
             Vector3 roightRelativeVerticalInput = h * right;
@@ -431,6 +494,14 @@ namespace Photon.Pun.Demo.PunBasics
                         _endGameUI.GetComponent<TMP_Text>().text = "Проигравший";
                     }
                     break;
+                case 4:
+                    CastHit castHit = (CastHit)photonEvent.CustomData;
+                    Debug.Log(castHit.Id + " : " + castHit.Direction);
+                    if (castHit.Id == photonView.ViewID)
+                    {
+                        _rigidBody.AddForce(castHit.Direction * _forceCast);
+                    }
+                    break;
             }
 
 
@@ -453,6 +524,11 @@ namespace Photon.Pun.Demo.PunBasics
         private void UpdateUIStatistics()
         {
             CharacterPlayFabCall.GetCHaracterStatistics(_characterPlayUI.UpdateUIStatistics, CharacterResult.CharacterId);
+        }
+
+        private void OnDestroy()
+        {
+            StopAllCoroutines();
         }
     }
 }

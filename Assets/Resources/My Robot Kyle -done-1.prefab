@@ -483,6 +483,10 @@ MonoBehaviour:
   _playerUiStatsPrefab: {fileID: 581991048915208538, guid: 12a973293904539499e8543c69738d78, type: 3}
   _rigidBody: {fileID: 5484970}
   _force: 200
+  _forceCast: 10000
+  _indicatorCastPrefab: {fileID: 6051131860674490815, guid: 8939f63454a26604a81f276778766a5d, type: 3}
+  _maxDistanceCast: 2
+  _offsetRay: 1
   _beams: {fileID: 170262}
   _playerTryAttempts: {fileID: 1735952581154675549}
   _pLayerGroundChecker: {fileID: 4183262135398928522}
