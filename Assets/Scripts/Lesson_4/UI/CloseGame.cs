@@ -1,4 +1,5 @@
 using Photon.Pun;
+using PlayFab;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -13,7 +14,9 @@ public class CloseGame : MonoBehaviour
 
     private void CloseGameApp()
     {
+        PlayFabClientAPI.ForgetAllCredentials();
         PhotonNetwork.LeaveRoom();
+        PhotonNetwork.Disconnect();
     }
 
     private void OnDestroy()

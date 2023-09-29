@@ -120,23 +120,6 @@ namespace Photon.Pun.Demo.PunBasics
             _damage = statistics[CharacterPlayFabCall.DAMAGE];
         }
 
-        private void GetUserData(string PlayFabId, string keyData)
-        {
-            PlayFabClientAPI.GetUserData(new GetUserDataRequest
-            {
-                PlayFabId = _playFabId
-            },
-             result =>
-             {
-                 if (result.Data.ContainsKey(keyData))
-                 {
-                     Debug.Log($"{keyData}: {result.Data[keyData].Value} : {this.gameObject.name} : {_playFabId}");
-                     CurrentHealth = float.Parse(result.Data[keyData].Value);
-                 }
-             },
-             error => Debug.Log("OnGetDataError"));
-        }
-
         public void SpawnPlayer()
         {
             transform.position = SpawnPosition.position;
