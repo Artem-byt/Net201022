@@ -45,7 +45,10 @@ namespace Photon.Pun.Demo.PunBasics
         private float _forceCast = 50f;
         [SerializeField]
         private GameObject _indicatorCastPrefab;
-        
+
+        [SerializeField]
+        private PlayerSoundManager _soundManager;
+
 
         [SerializeField]
         private float _maxDistanceCast = 2f;
@@ -482,6 +485,7 @@ namespace Photon.Pun.Demo.PunBasics
                     Debug.Log(castHit.Id + " : " + castHit.Direction);
                     if (castHit.Id == photonView.ViewID)
                     {
+                        _soundManager.HitSound();
                         _rigidBody.AddForce(castHit.Direction * _forceCast);
                     }
                     break;
