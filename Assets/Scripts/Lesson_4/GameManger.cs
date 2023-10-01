@@ -16,8 +16,11 @@ public class GameManger : MonoBehaviourPunCallbacks
     [SerializeField]
     private GameObject playerPrefab;
 
+    [SerializeField]
+    private GameObject aiPrefab;
+
     [SerializeField] private PrepareCharacterUI _CharacterUI;
-    [SerializeField] private SpawnModel spawnModel;
+    [SerializeField] private SpawnModel _spawnModel;
 
 
     [Header("Restart UI")]
@@ -26,9 +29,13 @@ public class GameManger : MonoBehaviourPunCallbacks
     [SerializeField]
     private TMP_Text _statusText;
 
+    [SerializeField]
+    private AudioSource _sourceHit;
+
     private void Start()
     {
         _CharacterUI.OnStartGame += InstantiatePlayer;
+        _CharacterUI.OnStartGame += InstantiateAI;
         if (!PhotonNetwork.IsConnected)
         {
             SceneManager.LoadScene(ConstantStrings.SCENE_MAIN);
@@ -47,10 +54,10 @@ public class GameManger : MonoBehaviourPunCallbacks
         if (PhotonNetwork.InRoom && PlayerManager.LocalPlayerInstance == null)
         {
             Debug.LogFormat("We are Instantiating LocalPlayer from {0}", SceneManagerHelper.ActiveSceneName);
-            var spawn = spawnModel.GetSpawn();
-           var go= PhotonNetwork.Instantiate(this.playerPrefab.name, spawn.position, Quaternion.identity, 0);
+            var go = PhotonNetwork.Instantiate(this.playerPrefab.name, _spawnModel.FreePosition.position, Quaternion.identity, 0);
+            go.GetComponentInChildren<PlayerManager>().SourceHit = _sourceHit;
             go.GetComponentInChildren<PlayerManager>().CharacterResult = character;
-            go.GetComponentInChildren<PlayerManager>().SpawnPosition = spawn;
+            go.GetComponentInChildren<PlayerManager>().SpawnPosition = _spawnModel.FreePosition.position;
             go.GetComponentInChildren<PlayerTryAttempts>().RestartButton = _restartBtn;
             go.GetComponentInChildren<PlayerTryAttempts>().Text = _statusText;
             go.GetComponentInChildren<PlayerTryAttempts>().Initialize();
@@ -59,6 +66,15 @@ public class GameManger : MonoBehaviourPunCallbacks
         {
 
             Debug.LogFormat("Ignoring scene load for {0}", SceneManagerHelper.ActiveSceneName);
+        }
+    }
+
+    private void InstantiateAI(CharacterResult character)
+    {
+        if (PhotonNetwork.InRoom && !_spawnModel.isNewPlayer)
+        {
+            var go = PhotonNetwork.Instantiate(this.aiPrefab.name, _spawnModel.GetAISpawn().position, Quaternion.identity, 0).GetComponent<AIManager>();
+            go.Points = _spawnModel.TransformsAI;
         }
     }
 
@@ -81,7 +97,7 @@ public class GameManger : MonoBehaviourPunCallbacks
         Debug.Log("OnPlayerEnteredRoom() " + other.NickName);
         RaiseEventOptions raiseEventOptions = new RaiseEventOptions();
         SendOptions sendOptions = new SendOptions { Reliability = true };
-        PhotonNetwork.RaiseEvent(2, spawnModel.IsFreePoition, raiseEventOptions, sendOptions);
+        PhotonNetwork.RaiseEvent(2, _spawnModel.IsFreePoition, raiseEventOptions, sendOptions);
     }
 
     public override void OnPlayerLeftRoom(Player other)
@@ -107,6 +123,7 @@ public class GameManger : MonoBehaviourPunCallbacks
     private void OnDestroy()
     {
         _CharacterUI.OnStartGame -= InstantiatePlayer;
+        _CharacterUI.OnStartGame -= InstantiateAI;
     }
 
 

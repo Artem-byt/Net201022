@@ -75,7 +75,9 @@ namespace Photon.Pun.Demo.PunBasics
         private string _playFabId;
         private GameObject _endGameUI;
         private Image _indicatorCast;
-        public Transform SpawnPosition;
+        public Vector3 SpawnPosition;
+
+        public AudioSource SourceHit;
 
         public float Id
         {
@@ -84,7 +86,7 @@ namespace Photon.Pun.Demo.PunBasics
         }
 
         private CharacterStatsUI _characterPlayUI;
-        private int _damage;
+        private int _damage = 1;
         private float _damageModifier = 0.1f;
 
         public void Awake()
@@ -118,14 +120,10 @@ namespace Photon.Pun.Demo.PunBasics
             DontDestroyOnLoad(gameObject);
         }
 
-        private void UpdateClientDamage(Dictionary<string, int> statistics)
-        {
-            _damage = statistics[CharacterPlayFabCall.DAMAGE];
-        }
-
         public void SpawnPlayer()
         {
-            transform.position = SpawnPosition.position;
+            transform.position = SpawnPosition;
+            CurrentHealth = 1f;
             gameObject.SetActive(true);
         }
 
@@ -172,10 +170,6 @@ namespace Photon.Pun.Demo.PunBasics
             {
                 Debug.LogWarning("<Color=Red><b>Missing</b></Color> PlayerUiPrefab reference on player Prefab.", this);
             }
-            if (photonView.IsMine)
-            {
-                CharacterPlayFabCall.GetCHaracterStatistics(UpdateClientDamage, CharacterResult.CharacterId);
-            }
 #if UNITY_5_4_OR_NEWER
             // Unity 5.4 has a new scene management. register a method to call CalledOnLevelWasLoaded.
             UnityEngine.SceneManagement.SceneManager.sceneLoaded += OnSceneLoaded;
@@ -205,12 +199,18 @@ namespace Photon.Pun.Demo.PunBasics
             {
                 this._beams.SetActive(this.IsFiring);
             }
+
+            if (this._beams.activeInHierarchy)
+            {
+                _soundManager.LaserSound();
+            }
         }
 
         private void ShowInventory(GetUserInventoryResult result)
         {
             var firstItem = result.Inventory.First();
             ConsumeOption(firstItem.ItemInstanceId);
+
         }
 
         private void ConsumeOption(string itemInstanceId)
@@ -252,6 +252,7 @@ namespace Photon.Pun.Demo.PunBasics
                 SendOptions sendOptions = new SendOptions { Reliability = true };
                 PhotonNetwork.RaiseEvent(1, killId, raiseEventOptions, sendOptions);
                 Debug.Log(CurrentHealth.ToString() + " : CurrentHealth");
+                SourceHit.Play();
                 gameObject.SetActive(false);
                 _playerTryAttempts.OnTriedAttempt();
 
@@ -279,6 +280,7 @@ namespace Photon.Pun.Demo.PunBasics
                 SendOptions sendOptions = new SendOptions { Reliability = true };
                 PhotonNetwork.RaiseEvent(1, killId, raiseEventOptions, sendOptions);
                 Debug.Log(CurrentHealth.ToString() + " : CurrentHealth");
+                SourceHit.Play();
                 gameObject.SetActive(false);
                 _playerTryAttempts.OnTriedAttempt();
             }

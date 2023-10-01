@@ -31,6 +31,7 @@ public class PlayerTryAttempts : MonoBehaviour
         {
             RestartButton.gameObject.SetActive(true);
             Text.text = $"Вы погибли, оставшихся попыток: {_attempts}";
+            return;
         }
         Text.text = "У вас не осталось попыток";
 

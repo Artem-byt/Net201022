@@ -9,9 +9,6 @@ public static class CharacterPlayFabCall
 
     public const string XP = "XP";
     public const string LEVEL = "Level";
-    public const string DAMAGE = "Damage";
-    public const string GOLD = "GOLD";
-    public const string HP = "HP";
 
     public static void CreateCharacterWithItemId(string itemId, Action callback, string characterName) 
     {
@@ -26,9 +23,6 @@ public static class CharacterPlayFabCall
             {
                 { LEVEL,1},
                 { XP,0},
-                { DAMAGE,1},
-                { GOLD,0},
-                { HP,1}
             };
             UpdateCharacterStatistics(callback, result.CharacterId, dictionary); 
         },

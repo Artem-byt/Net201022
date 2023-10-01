@@ -398,22 +398,19 @@ GameObject:
   m_Component:
   - component: {fileID: 400030}
   - component: {fileID: 9500000}
-  - component: {fileID: 11454274}
-  - component: {fileID: 11449706}
   - component: {fileID: 11400008}
   - component: {fileID: 11400010}
   - component: {fileID: 5484970}
-  - component: {fileID: 11484610}
+  - component: {fileID: -1560456682331418335}
   - component: {fileID: 11413802}
   - component: {fileID: 1555333933199965103}
-  - component: {fileID: 1735952581154675549}
-  - component: {fileID: 4183262135398928522}
   - component: {fileID: -5891124676733193571}
   - component: {fileID: -2179232491832629287}
   - component: {fileID: 2049737202524620379}
-  - component: {fileID: 7579589345915249606}
+  - component: {fileID: -6126815999408557987}
+  - component: {fileID: -3304902445931353504}
   m_Layer: 0
-  m_Name: My Robot Kyle -done-1
+  m_Name: AI
   m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -456,47 +453,6 @@ Animator:
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorControllerStateOnDisable: 0
---- !u!114 &11454274
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 100030}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 507e5741cec8a42dc964c8e0a4b55bd6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  directionDampTime: 0.25
---- !u!114 &11449706
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 100030}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 98fac77b304554f238a61572f5720187, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  CurrentHealth: 0
-  _playerUiPrefab: {fileID: 170056, guid: 43a165223036b1b438d0ea0ad44ab951, type: 3}
-  _endGamePrefab: {fileID: 6989387882439189978, guid: 1e8dfe512497b9b4bac40c5ac33c5e54, type: 3}
-  _playerUiStatsPrefab: {fileID: 581991048915208538, guid: 12a973293904539499e8543c69738d78, type: 3}
-  _rigidBody: {fileID: 5484970}
-  _force: 200
-  _forceCast: 10000
-  _indicatorCastPrefab: {fileID: 6051131860674490815, guid: 8939f63454a26604a81f276778766a5d, type: 3}
-  _soundManager: {fileID: -2179232491832629287}
-  _maxDistanceCast: 2
-  _offsetRay: 1
-  _beams: {fileID: 170262}
-  _playerTryAttempts: {fileID: 1735952581154675549}
-  _pLayerGroundChecker: {fileID: 4183262135398928522}
-  SpawnPosition: {x: 0, y: 0, z: 0}
-  SourceHit: {fileID: 0}
 --- !u!114 &11400008
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -516,7 +472,6 @@ MonoBehaviour:
   OwnershipTransfer: 0
   observableSearch: 2
   ObservedComponents:
-  - {fileID: 11449706}
   - {fileID: 11400010}
   - {fileID: 11413802}
   sceneViewId: 0
@@ -554,7 +509,7 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 80
   m_CollisionDetection: 0
---- !u!114 &11484610
+--- !u!114 &-1560456682331418335
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -563,14 +518,15 @@ MonoBehaviour:
   m_GameObject: {fileID: 100030}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fd08475b23aa548b7b9d28397d430b32, type: 3}
+  m_Script: {fileID: 11500000, guid: 4169b11c16dfa264f9e2b9d49bec9732, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  distance: 7
-  height: 6
-  centerOffset: {x: 0, y: 2, z: 0}
-  followOnStart: 0
-  smoothSpeed: 1
+  _rigidBody: {fileID: 5484970}
+  _force: 2
+  _soundManager: {fileID: -2179232491832629287}
+  _navMeshAgent: {fileID: -6126815999408557987}
+  _beams: {fileID: 170262}
+  Points: []
 --- !u!114 &11413802
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -616,34 +572,6 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 0.5, y: 1.8, z: 1}
   m_Center: {x: 0, y: 0.91, z: 0}
---- !u!114 &1735952581154675549
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 100030}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 10615643ee80b084fba2f984fdbc5176, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _attempts: 3
-  _playerManager: {fileID: 11449706}
-  RestartButton: {fileID: 0}
-  Text: {fileID: 0}
---- !u!114 &4183262135398928522
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 100030}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 10ee24985bd2f2140b2f6e542f3cd023, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!82 &-5891124676733193571
 AudioSource:
   m_ObjectHideFlags: 0
@@ -754,7 +682,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _audioSourceForSteps: {fileID: -5891124676733193571}
   _audioSourceForHit: {fileID: 2049737202524620379}
-  _audioSourceForLaser: {fileID: 7579589345915249606}
+  _audioSourceForLaser: {fileID: -3304902445931353504}
   _stepSound: {fileID: 8300000, guid: e139730a2735d3f48b1a115dcf480794, type: 3}
   _hitSound: {fileID: 8300000, guid: b184c50c7cb77394491ab0d4eba63071, type: 3}
   _lazerSound: {fileID: 8300000, guid: ca43a958409d2b74dba5d42031e47853, type: 3}
@@ -854,7 +782,29 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
---- !u!82 &7579589345915249606
+--- !u!195 &-6126815999408557987
+NavMeshAgent:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 100030}
+  m_Enabled: 1
+  m_AgentTypeID: 0
+  m_Radius: 0.5
+  m_Speed: 2
+  m_Acceleration: 8
+  avoidancePriority: 50
+  m_AngularSpeed: 120
+  m_StoppingDistance: 0.1
+  m_AutoTraverseOffMeshLink: 1
+  m_AutoBraking: 1
+  m_AutoRepath: 1
+  m_Height: 2
+  m_BaseOffset: 0
+  m_WalkableMask: 4294967295
+  m_ObstacleAvoidanceType: 4
+--- !u!82 &-3304902445931353504
 AudioSource:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}

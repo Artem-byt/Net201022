@@ -84,9 +84,11 @@ public class PrepareCharacterUI : MonoBehaviour
 
     private void PrepareUIEvents()
     {
+        var slots = slotsCount;
+        slotsCount = 0;
         for (int i = _characters.Count; i < _buttonSlots.Count; i++)
         {
-            if (slotsCount > 0)
+            if (slots > 0)
             {
                 _buttonSlots[i].GetComponentInChildren<TMP_Text>().text = "Create";
                 _buttonSlots[i].onClick.AddListener(OpenCreateNewCharacterPrompt);
@@ -96,6 +98,7 @@ public class PrepareCharacterUI : MonoBehaviour
                 _buttonSlots[i].GetComponentInChildren<TMP_Text>().text = "Buy";
                 _buttonSlots[i].onClick.AddListener(() => CharacterPlayFabCall.CompletePurchaseForCharacterSlots(() => { OpenCreateNewCharacterPrompt(); UpdateAccountStatsInfo(); GetCharacters(); }));
             }
+            slots--;
         }
     }
 

@@ -7,17 +7,23 @@ using UnityEngine;
 public class SpawnModel : MonoBehaviour, IOnEventCallback
 {
    [SerializeField] private List<Transform> _transforms = new List<Transform>();
+    [SerializeField] private List<Transform> _transformsAI = new List<Transform>();
     [SerializeField] private bool[] _isFreePoition = new bool[4];
 
     public List<Transform> Transforms => _transforms;
+    public List<Transform> TransformsAI => _transformsAI;
     public bool[] IsFreePoition => _isFreePoition;
+    public bool isNewPlayer;
+
+    public Transform FreePosition;
 
     private void Awake()
     {
         PhotonNetwork.AddCallbackTarget(this);
+        FreePosition = GetSpawn();
     }
 
-    public Transform GetSpawn()
+    private Transform GetSpawn()
     {
         for(int i = 0; i < _transforms.Count; i++)
         {
@@ -31,12 +37,19 @@ public class SpawnModel : MonoBehaviour, IOnEventCallback
         return null;
     }
 
+    public Transform GetAISpawn()
+    {
+        return _transformsAI[0];
+    }
+
     public void OnEvent(EventData photonEvent)
     {
         switch (photonEvent.Code)
         {
             case 2:
                 _isFreePoition = (bool[])photonEvent.CustomData;
+                isNewPlayer = true;
+                FreePosition = GetSpawn();
                 break;
         }
     }

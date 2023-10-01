@@ -3,9 +3,11 @@ using UnityEngine;
 public class PlayerSoundManager : MonoBehaviour
 {
     [SerializeField] private AudioSource _audioSourceForSteps;
-    [SerializeField] private AudioSource _audioSourceForGameEvents;
+    [SerializeField] private AudioSource _audioSourceForHit;
+    [SerializeField] private AudioSource _audioSourceForLaser;
     [SerializeField] private AudioClip _stepSound;
     [SerializeField] private AudioClip _hitSound;
+    [SerializeField] private AudioClip _lazerSound;
 
     public void StepSoundAnimation()
     {
@@ -15,9 +17,20 @@ public class PlayerSoundManager : MonoBehaviour
 
     public void HitSound()
     {
-        _audioSourceForGameEvents.clip = _hitSound;
-        _audioSourceForGameEvents.volume = 0.1f;
-        _audioSourceForGameEvents.Play();
+        _audioSourceForHit.clip = _hitSound;
+        _audioSourceForHit.volume = 0.1f;
+        _audioSourceForHit.Play();
+    }
+
+    public void LaserSound()
+    {
+        if(_audioSourceForLaser.isPlaying)
+        {
+            return;
+        }
+        _audioSourceForLaser.clip = _lazerSound;
+        _audioSourceForLaser.volume = 0.1f;
+        _audioSourceForLaser.Play();
     }
 
 }
