@@ -13,7 +13,7 @@ using UnityEngine.UI;
 using System.Linq;
 using UnityEngine.AI;
 
-public class AIManager : MonoBehaviourPunCallbacks
+public class AIManager : MonoBehaviourPunCallbacks, IPunObservable
 {
 
     [Tooltip("The local player instance. Use this to know if the local player is represented in the Scene")]
@@ -44,6 +44,7 @@ public class AIManager : MonoBehaviourPunCallbacks
 
 
     private bool _isPatrolling = true;
+    public bool IsReady = false;
 
     public void Awake()
     {
@@ -68,7 +69,6 @@ public class AIManager : MonoBehaviourPunCallbacks
 
     public void Start()
     {
-        _navMeshAgent.SetDestination(Points[3].position);
 
 #if UNITY_5_4_OR_NEWER
         // Unity 5.4 has a new scene management. register a method to call CalledOnLevelWasLoaded.
@@ -85,9 +85,15 @@ public class AIManager : MonoBehaviourPunCallbacks
 #endif
     }
 
+    public void SetReary()
+    {
+        IsReady = true;
+        _navMeshAgent.SetDestination(Points[3].position);
+    }
+
     private void Update()
     {
-        if (!_isEndGame)
+        if (!_isEndGame && IsReady && photonView.IsMine)
         {
             PatrollingState();
             FollowPlayerState();
@@ -121,9 +127,13 @@ public class AIManager : MonoBehaviourPunCallbacks
     {
         Ray ray = new Ray { direction = transform.forward, origin = transform.position };
         RaycastHit raycastHit = new RaycastHit();
-        if(Physics.Raycast(ray, out raycastHit))
+        var raycast = Physics.Raycast(ray, out raycastHit);
+        Debug.Log(raycast + " : raycast");
+        if (raycast)
         {
-            if(raycastHit.collider.gameObject.GetComponent<PlayerManager>() != null)
+            var playerManager = raycastHit.collider.gameObject.GetComponent<PlayerManager>();
+            Debug.Log(playerManager + " : player manager");
+            if (playerManager != null)
             {
                 _isPatrolling = false;
                 _navMeshAgent.ResetPath();

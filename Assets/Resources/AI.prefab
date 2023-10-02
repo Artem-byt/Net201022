@@ -527,6 +527,7 @@ MonoBehaviour:
   _navMeshAgent: {fileID: -6126815999408557987}
   _beams: {fileID: 170262}
   Points: []
+  IsReady: 0
 --- !u!114 &11413802
 MonoBehaviour:
   m_ObjectHideFlags: 0

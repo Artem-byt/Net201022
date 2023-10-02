@@ -75,6 +75,7 @@ public class GameManger : MonoBehaviourPunCallbacks
         {
             var go = PhotonNetwork.Instantiate(this.aiPrefab.name, _spawnModel.GetAISpawn().position, Quaternion.identity, 0).GetComponent<AIManager>();
             go.Points = _spawnModel.TransformsAI;
+            go.SetReary();
         }
     }
 
@@ -95,6 +96,11 @@ public class GameManger : MonoBehaviourPunCallbacks
     public override void OnPlayerEnteredRoom(Player other)
     {
         Debug.Log("OnPlayerEnteredRoom() " + other.NickName);
+        Invoke("SendEvent", 2f);
+    }
+
+    private void SendEvent()
+    {
         RaiseEventOptions raiseEventOptions = new RaiseEventOptions();
         SendOptions sendOptions = new SendOptions { Reliability = true };
         PhotonNetwork.RaiseEvent(2, _spawnModel.IsFreePoition, raiseEventOptions, sendOptions);

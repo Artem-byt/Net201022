@@ -394,7 +394,7 @@ namespace Photon.Pun.Demo.PunBasics
             Debug.Log("Cast");
             var start = new Vector3(transform.position.x, transform.position.y + _offsetRay, transform.position.z);
             Ray ray = new Ray(start, transform.forward);
-            bool raycast = Physics.SphereCast(ray, 1, out var hitInfo, _maxDistanceCast);
+            bool raycast = Physics.SphereCast(ray, 2, out var hitInfo, _maxDistanceCast);
  
             if (raycast && hitInfo.rigidbody != null)
             {
@@ -472,12 +472,12 @@ namespace Photon.Pun.Demo.PunBasics
                     _isEndGame = true;
                     this._beams.SetActive(false);
                     float id = (float)photonEvent.CustomData;
-                    if (id == photonView.ViewID)
+                    if (id == photonView.ViewID && photonView.IsMine)
                     {
                         _endGameUI.GetComponent<TMP_Text>().text = "Победитель";
                         ChangeClientStatistics();
                     }
-                    else
+                    else if (photonView.IsMine)
                     {
                         _endGameUI.GetComponent<TMP_Text>().text = "Проигравший";
                     }
