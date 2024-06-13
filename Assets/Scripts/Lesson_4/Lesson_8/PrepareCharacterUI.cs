@@ -14,13 +14,16 @@ public class PrepareCharacterUI : MonoBehaviour
     [SerializeField] private List<Button> _buttonSlots;
     [SerializeField] private GameObject _panelNewCharacterCreator;
     [SerializeField] private GameObject _chooseCharacterPrefab;
+    [SerializeField] private TMP_Text _goldCurrency;
 
     private List<CharacterResult> _characters = new List<CharacterResult>();
     private List<Button> _newCharacterPanelButtons= new List<Button>();
     private TMP_InputField _nameNewCharacter;
+    private int slotsCount = 0;
 
     private void Start()
     {
+        UpdateAccountStatsInfo();
         GetCharacters();
         _newCharacterPanelButtons = _panelNewCharacterCreator.GetComponentsInChildren<Button>().ToList();
         _nameNewCharacter = _panelNewCharacterCreator.GetComponentInChildren<TMP_InputField>();
@@ -29,15 +32,19 @@ public class PrepareCharacterUI : MonoBehaviour
         _newCharacterPanelButtons[1].onClick.AddListener(OnCreatedNewCharacterAccept);
     }
 
+    private void UpdateAccountStatsInfo()
+    {
+        PLayFabAccountInfoCalls.GetUserInventoryInfo(new GetUserInventoryRequest(), UpdateCurrencyInfoUI);
+    }
+
+    private void UpdateCurrencyInfoUI(GetUserInventoryResult getUserInventoryResult)
+    {
+        _goldCurrency.text = getUserInventoryResult.VirtualCurrency[ConstantStrings.GO_VIRTUAL_CURRENCY].ToString();
+    }
+
     private void GetCharacters()
     {
-        PlayFabClientAPI.GetAllUsersCharacters(new ListUsersCharactersRequest(),
-            res =>
-            {
-                Debug.Log($"Characters owned: +{res.Characters.Count}");
-                UpdateCharactersList(res);
-            },
-            Debug.LogError);
+        PLayFabAccountInfoCalls.GetAllUserCharacters(new ListUsersCharactersRequest(), UpdateCharactersList);
     }
 
     private void UpdateCharactersList(ListUsersCharactersResult result)
@@ -49,23 +56,63 @@ public class PrepareCharacterUI : MonoBehaviour
 
         for (int i = 0; i < result.Characters.Count; i++)
         {
-            _buttonSlots[i].onClick.RemoveAllListeners();
             _characters.Add(result.Characters[i]);
-            ChangeNameOfButton(_buttonSlots[i], result.Characters[i]);
+        }
+        UpdateCharacterSlotsUI();
+    }
 
-            var characterResult = result.Characters[i];
+    private void UpdateCharacterSlotsUI()
+    {
+        for (int i = 0; i < _characters.Count; i++)
+        {
+            _buttonSlots[i].onClick.RemoveAllListeners();
+            ChangeNameOfButton(_buttonSlots[i], _characters[i].CharacterName);
+
+            CharacterResult characterResult = _characters[i];
             _buttonSlots[i].onClick.AddListener(() => ChooseCreatedCharacter(characterResult));
 
         }
-        if (result.Characters.Count < 2)
-        {
-            CharacterPlayFabCall.CompletePurchaseForCharacterSlots();
-        }
 
+        CheckTokenSlotsCharacterForPurchase();
+
+    }
+
+    private void CheckTokenSlotsCharacterForPurchase()
+    {
+        PLayFabAccountInfoCalls.GetUserInventoryInfo(new GetUserInventoryRequest(),  CheckSlotsAccount);
+    }
+
+    private void PrepareUIEvents()
+    {
+        var slots = slotsCount;
+        slotsCount = 0;
         for (int i = _characters.Count; i < _buttonSlots.Count; i++)
         {
-            _buttonSlots[i].onClick.AddListener(OpenCreateNewCharacterPrompt);
+            if (slots > 0)
+            {
+                _buttonSlots[i].GetComponentInChildren<TMP_Text>().text = "Create";
+                _buttonSlots[i].onClick.AddListener(OpenCreateNewCharacterPrompt);
+            }
+            else
+            {
+                _buttonSlots[i].GetComponentInChildren<TMP_Text>().text = "Buy";
+                _buttonSlots[i].onClick.AddListener(() => CharacterPlayFabCall.CompletePurchaseForCharacterSlots(() => { OpenCreateNewCharacterPrompt(); UpdateAccountStatsInfo(); GetCharacters(); }));
+            }
+            slots--;
         }
+    }
+
+    private void CheckSlotsAccount(GetUserInventoryResult getUserInventoryResult)
+    {
+        foreach(var itemInstance in getUserInventoryResult.Inventory)
+        {
+            Debug.Log(itemInstance.ItemId);
+            if  (itemInstance.ItemId == ConstantStrings.CHARACTER_TOKEN)
+            {
+                slotsCount++;
+            }
+        }
+        PrepareUIEvents();
     }
 
     public void SwitchStateUICharacters(bool characterPrefab, bool CharacterCreatePrefab)
@@ -74,11 +121,11 @@ public class PrepareCharacterUI : MonoBehaviour
         _panelNewCharacterCreator.SetActive(CharacterCreatePrefab);
     }
 
-    private void ChangeNameOfButton(Button button, CharacterResult characterResult)
+    private void ChangeNameOfButton(Button button, string characterName)
     {
         if (button != null)
         {
-            button.GetComponentInChildren<TMP_Text>().text = characterResult.CharacterName;
+            button.GetComponentInChildren<TMP_Text>().text = characterName;
         }
     }
 

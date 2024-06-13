@@ -1,35 +1,22 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="PlayerManager.cs" company="Exit Games GmbH">
-//   Part of: Photon Unity Networking Demos
-// </copyright>
-// <summary>
-//  Used in PUN Basics Tutorial to deal with the networked player instance
-// </summary>
-// <author>developer@exitgames.com</author>
-// --------------------------------------------------------------------------------------------------------------------
-
-using ExitGames.Client.Photon;
+﻿using ExitGames.Client.Photon;
 using Photon.Realtime;
 using PlayFab;
 using PlayFab.ClientModels;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 namespace Photon.Pun.Demo.PunBasics
 {
 #pragma warning disable 649
 
-    /// <summary>
-    /// Player manager.
-    /// Handles fire Input and Beams.
-    /// </summary>
     public class PlayerManager : MonoBehaviourPunCallbacks, IPunObservable, IOnEventCallback
     {
-        #region Public Fields
-
         //[Tooltip("The current Health of our player")]
         //public float Health = 1f;
         public float CurrentHealth;
@@ -39,29 +26,58 @@ namespace Photon.Pun.Demo.PunBasics
 
         public CharacterResult CharacterResult { get; set; }
 
-
-        #endregion
-
-        #region Private Fields
-
         [Tooltip("The Player's UI GameObject Prefab")]
         [SerializeField]
-        private GameObject playerUiPrefab;
+        private GameObject _playerUiPrefab;
 
         [SerializeField]
-        private GameObject playerUiStatsPrefab;
+        private GameObject _endGamePrefab;
+
+        [SerializeField]
+        private GameObject _playerUiStatsPrefab;
+
+        [SerializeField]
+        private Rigidbody _rigidBody;
+
+        [SerializeField]
+        private float _force = 2f;
+        [SerializeField]
+        private float _forceCast = 50f;
+        [SerializeField]
+        private GameObject _indicatorCastPrefab;
+
+        [SerializeField]
+        private PlayerSoundManager _soundManager;
+
+
+        [SerializeField]
+        private float _maxDistanceCast = 2f;
+
+        [SerializeField]
+        private float _offsetRay = 1f;
 
         [Tooltip("The Beams GameObject to control")]
         [SerializeField]
-        private GameObject beams;
+        private GameObject _beams;
 
-        //True, when the user is firing
+        [SerializeField]
+        private PlayerTryAttempts _playerTryAttempts;
+
+        [SerializeField]
+        private PLayerGroundChecker _pLayerGroundChecker;
+
         bool IsFiring;
-        bool IsHealing;
+        private bool _isEndGame;
+        private bool _isCast;
 
         private float _id;
 
         private string _playFabId;
+        private GameObject _endGameUI;
+        private Image _indicatorCast;
+        public Vector3 SpawnPosition;
+
+        public AudioSource SourceHit;
 
         public float Id
         {
@@ -70,26 +86,19 @@ namespace Photon.Pun.Demo.PunBasics
         }
 
         private CharacterStatsUI _characterPlayUI;
-        private int _damage;
+        private int _damage = 1;
         private float _damageModifier = 0.1f;
 
-        #endregion
-
-        #region MonoBehaviour CallBacks
-
-        /// <summary>
-        /// MonoBehaviour method called on GameObject by Unity during early initialization phase.
-        /// </summary>
         public void Awake()
         {
             PhotonNetwork.AddCallbackTarget(this);
-            if (this.beams == null)
+            if (this._beams == null)
             {
                 Debug.LogError("<Color=Red><b>Missing</b></Color> Beams Reference.", this);
             }
             else
             {
-                this.beams.SetActive(false);
+                this._beams.SetActive(false);
             }
 
             // #Important
@@ -97,7 +106,6 @@ namespace Photon.Pun.Demo.PunBasics
             if (photonView.IsMine)
             {
                 LocalPlayerInstance = gameObject;
-                MakePurchase();
             }
 
             PlayFabClientAPI.GetAccountInfo(new GetAccountInfoRequest(), result =>
@@ -106,58 +114,19 @@ namespace Photon.Pun.Demo.PunBasics
                 Debug.Log(_playFabId + " : PlayFabId");
             }, error => Debug.Log("Error playFabId"));
 
-            
+
             CurrentHealth = 1f;
-            SetData("1");
 
-
-            // #Critical
-            // we flag as don't destroy on load so that instance survives level synchronization, thus giving a seamless experience when levels load.
             DontDestroyOnLoad(gameObject);
         }
 
-        private void UpdateClientDamage(Dictionary<string, int> statistics)
+        public void SpawnPlayer()
         {
-            _damage = statistics[CharacterPlayFabCall.DAMAGE];
+            transform.position = SpawnPosition;
+            CurrentHealth = 1f;
+            gameObject.SetActive(true);
         }
 
-        private void SetData(string health)
-        {
-            PlayFabClientAPI.UpdateUserData(new UpdateUserDataRequest
-            {
-                Data = new Dictionary<string, string>
-                {
-                   { "Health", health}
-                }
-            },
-           result =>
-           {
-               Debug.Log("Update User Data");
-               GetUserData(_playFabId, "Health");
-           },
-           error => Debug.Log("OnLoginError"));
-        }
-
-        private void GetUserData(string PlayFabId, string keyData)
-        {
-            PlayFabClientAPI.GetUserData(new GetUserDataRequest
-            {
-                PlayFabId = _playFabId
-            },
-             result =>
-             {
-                 if (result.Data.ContainsKey(keyData))
-                 {
-                     Debug.Log($"{keyData}: {result.Data[keyData].Value} : {this.gameObject.name} : {_playFabId}");
-                     CurrentHealth = float.Parse(result.Data[keyData].Value);
-                 }
-             },
-             error => Debug.Log("OnGetDataError"));
-        }
-
-        /// <summary>
-        /// MonoBehaviour method called on GameObject by Unity during initialization phase.
-        /// </summary>
         public void Start()
         {
             CameraWork _cameraWork = gameObject.GetComponent<CameraWork>();
@@ -174,26 +143,32 @@ namespace Photon.Pun.Demo.PunBasics
                 Debug.LogError("<Color=Red><b>Missing</b></Color> CameraWork Component on player Prefab.", this);
             }
 
-            // Create the UI
-
-            if (playerUiStatsPrefab != null && photonView.IsMine)
+            if (_indicatorCastPrefab != null && photonView.IsMine) 
             {
-                _characterPlayUI = Instantiate(this.playerUiStatsPrefab).GetComponentInChildren<CharacterStatsUI>();
+                _indicatorCast = Instantiate(_indicatorCastPrefab).GetComponentInChildren<Image>();
+                _indicatorCast.transform.SetParent(GameObject.Find("Canvas").GetComponent<Transform>(), false);
+            }
+
+            if (_playerUiStatsPrefab != null && photonView.IsMine)
+            {
+                _characterPlayUI = Instantiate(this._playerUiStatsPrefab).GetComponentInChildren<CharacterStatsUI>();
                 _characterPlayUI.SendMessage("SetTarget", this, SendMessageOptions.RequireReceiver);
             }
 
-            if (this.playerUiPrefab != null)
+            if (_playerUiStatsPrefab != null && photonView.IsMine)
             {
-                GameObject _uiGo = Instantiate(this.playerUiPrefab);
+                _endGameUI = Instantiate(_endGamePrefab);
+                _endGameUI.transform.SetParent(GameObject.Find("Canvas").GetComponent<Transform>(), false);
+            }
+
+            if (this._playerUiPrefab != null)
+            {
+                GameObject _uiGo = Instantiate(this._playerUiPrefab);
                 _uiGo.SendMessage("SetTarget", this, SendMessageOptions.RequireReceiver);
             }
             else
             {
                 Debug.LogWarning("<Color=Red><b>Missing</b></Color> PlayerUiPrefab reference on player Prefab.", this);
-            }
-            if (photonView.IsMine)
-            {
-                CharacterPlayFabCall.GetCHaracterStatistics(UpdateClientDamage, CharacterResult.CharacterId);
             }
 #if UNITY_5_4_OR_NEWER
             // Unity 5.4 has a new scene management. register a method to call CalledOnLevelWasLoaded.
@@ -201,26 +176,8 @@ namespace Photon.Pun.Demo.PunBasics
 #endif
         }
 
-
-
-        private void MakePurchase()
-        {
-            PlayFabClientAPI.PurchaseItem(new PurchaseItemRequest
-            {
-                CatalogVersion = "1.0",
-                ItemId = "health_potion",
-                Price = 2,
-                VirtualCurrency = "GO"
-
-            }, result =>
-            {
-                Debug.Log("Complete Purchase");
-            }, error => Debug.Log("Error Purchase"));
-        }
-
         public override void OnDisable()
         {
-            // Always call the base to remove callbacks
             base.OnDisable();
 
 #if UNITY_5_4_OR_NEWER
@@ -230,43 +187,30 @@ namespace Photon.Pun.Demo.PunBasics
 
         private bool leavingRoom;
 
-        /// <summary>
-        /// MonoBehaviour method called on GameObject by Unity on every frame.
-        /// Process Inputs if local player.
-        /// Show and hide the beams
-        /// Watch for end of game, when local player health is 0.
-        /// </summary>
         private void Update()
         {
-            // we only process Inputs and check health if we are the local player
-            if (photonView.IsMine)
+            if (photonView.IsMine && !_isEndGame)
             {
                 this.ProcessInputs();
-                //if (CurrentHealth <= 0f && !this.leavingRoom)
-                //{
-                //    Debug.Log(CurrentHealth.ToString() + " : CurrentHealth");
-                //    this.leavingRoom = PhotonNetwork.LeaveRoom();
-                //}
 
-                if (this.IsHealing)
-                {
-                    this.IsHealing = false;
-                    PlayFabClientAPI.GetUserInventory(new GetUserInventoryRequest(), result => ShowInventory(result), error => { Debug.Log("Error Healing: " + error.GenerateErrorReport()); });
-                }
             }
 
-            if (this.beams != null && this.IsFiring != this.beams.activeInHierarchy)
+            if (this._beams != null && this.IsFiring != this._beams.activeInHierarchy && !_isEndGame)
             {
-                this.beams.SetActive(this.IsFiring);
+                this._beams.SetActive(this.IsFiring);
             }
 
-
+            if (this._beams.activeInHierarchy)
+            {
+                _soundManager.LaserSound();
+            }
         }
 
         private void ShowInventory(GetUserInventoryResult result)
         {
             var firstItem = result.Inventory.First();
             ConsumeOption(firstItem.ItemInstanceId);
+
         }
 
         private void ConsumeOption(string itemInstanceId)
@@ -279,7 +223,6 @@ namespace Photon.Pun.Demo.PunBasics
             {
                 Debug.Log("Complete ConsumeItem");
                 CurrentHealth += 0.5f;
-                SetData(CurrentHealth.ToString());
             }, error => Debug.Log("Error ConsumeItem"));
         }
 
@@ -288,12 +231,6 @@ namespace Photon.Pun.Demo.PunBasics
             this.leavingRoom = false;
         }
 
-        /// <summary>
-        /// MonoBehaviour method called when the Collider 'other' enters the trigger.
-        /// Affect Health of the Player if the collider is a beam
-        /// Note: when jumping and firing at the same, you'll find that the player's own beam intersects with itself
-        /// One could move the collider further away to prevent this or check if the beam belongs to the player.
-        /// </summary>
         public void OnTriggerEnter(Collider other)
         {
             if (!photonView.IsMine)
@@ -301,15 +238,12 @@ namespace Photon.Pun.Demo.PunBasics
                 return;
             }
 
-
-            // We are only interested in Beamers
-            // we should be using tags but for the sake of distribution, let's simply check by name.
             if (!other.name.Contains("Beam"))
             {
                 return;
             }
              ;
-            CurrentHealth -= _damage*_damageModifier;
+            CurrentHealth -= _damage * _damageModifier;
             if (CurrentHealth < 0)
             {
                 Debug.Log("SendData");
@@ -318,32 +252,25 @@ namespace Photon.Pun.Demo.PunBasics
                 SendOptions sendOptions = new SendOptions { Reliability = true };
                 PhotonNetwork.RaiseEvent(1, killId, raiseEventOptions, sendOptions);
                 Debug.Log(CurrentHealth.ToString() + " : CurrentHealth");
-                this.leavingRoom = PhotonNetwork.LeaveRoom();
+                SourceHit.Play();
+                gameObject.SetActive(false);
+                _playerTryAttempts.OnTriedAttempt();
+
             }
-            SetData(CurrentHealth.ToString());
         }
 
-        /// <summary>
-        /// MonoBehaviour method called once per frame for every Collider 'other' that is touching the trigger.
-        /// We're going to affect health while the beams are interesting the player
-        /// </summary>
-        /// <param name="other">Other.</param>
         public void OnTriggerStay(Collider other)
         {
-            // we dont' do anything if we are not the local player.
             if (!photonView.IsMine)
             {
                 return;
             }
 
-            // We are only interested in Beamers
-            // we should be using tags but for the sake of distribution, let's simply check by name.
             if (!other.name.Contains("Beam"))
             {
                 return;
             }
 
-            // we slowly affect health when beam is constantly hitting us, so player has to move to prevent death.
             CurrentHealth -= _damage * _damageModifier * Time.deltaTime;
             if (CurrentHealth < 0)
             {
@@ -353,10 +280,25 @@ namespace Photon.Pun.Demo.PunBasics
                 SendOptions sendOptions = new SendOptions { Reliability = true };
                 PhotonNetwork.RaiseEvent(1, killId, raiseEventOptions, sendOptions);
                 Debug.Log(CurrentHealth.ToString() + " : CurrentHealth");
-                this.leavingRoom = PhotonNetwork.LeaveRoom();
+                SourceHit.Play();
+                gameObject.SetActive(false);
+                _playerTryAttempts.OnTriedAttempt();
+            }
+        }
+
+        public void OnTriggerExit(Collider other)
+        {
+            if (!photonView.IsMine)
+            {
+                return;
+            }
+            if (!other.name.Contains("Beam"))
+            {
+                return;
             }
 
-            SetData(CurrentHealth.ToString());
+
+
         }
 
 
@@ -368,13 +310,6 @@ namespace Photon.Pun.Demo.PunBasics
         }
 #endif
 
-
-        /// <summary>
-        /// MonoBehaviour method called after a new level of index 'level' was loaded.
-        /// We recreate the Player UI because it was destroy when we switched level.
-        /// Also reposition the player if outside the current arena.
-        /// </summary>
-        /// <param name="level">Level index loaded</param>
         void CalledOnLevelWasLoaded(int level)
         {
             // check if we are outside the Arena and if it's the case, spawn around the center of the arena in a safe zone
@@ -383,20 +318,17 @@ namespace Photon.Pun.Demo.PunBasics
                 transform.position = new Vector3(0f, 5f, 0f);
             }
 
-            GameObject _uiGo = Instantiate(this.playerUiPrefab);
+            GameObject _uiGo = Instantiate(this._playerUiPrefab);
             _uiGo.SendMessage("SetTarget", this, SendMessageOptions.RequireReceiver);
 
-            if(photonView.IsMine)
+            if (photonView.IsMine)
             {
-                _characterPlayUI = Instantiate(this.playerUiStatsPrefab).GetComponentInChildren<CharacterStatsUI>();
+                _characterPlayUI = Instantiate(this._playerUiStatsPrefab).GetComponentInChildren<CharacterStatsUI>();
                 _characterPlayUI.SendMessage("SetTarget", this, SendMessageOptions.RequireReceiver);
             }
 
         }
 
-        #endregion
-
-        #region Private Methods
 
 
 #if UNITY_5_4_OR_NEWER
@@ -406,15 +338,10 @@ namespace Photon.Pun.Demo.PunBasics
         }
 #endif
 
-        /// <summary>
-        /// Processes the inputs. This MUST ONLY BE USED when the player has authority over this Networked GameObject (photonView.isMine == true)
-        /// </summary>
         void ProcessInputs()
         {
             if (Input.GetButtonDown("Fire1"))
             {
-                // we don't want to fire when we interact with UI buttons for example. IsPointerOverGameObject really means IsPointerOver*UI*GameObject
-                // notice we don't use on on GetbuttonUp() few lines down, because one can mouse down, move over a UI element and release, which would lead to not lower the isFiring Flag.
                 if (EventSystem.current.IsPointerOverGameObject())
                 {
                     //	return;
@@ -426,26 +353,86 @@ namespace Photon.Pun.Demo.PunBasics
                 }
             }
 
-            if (Input.GetButtonUp("Fire1"))
+            if (Input.GetButtonDown("Fire2"))
             {
-                if (this.IsFiring)
+                if (EventSystem.current.IsPointerOverGameObject())
                 {
-                    this.IsFiring = false;
+                    //	return;
+                }
+
+                if (!_isCast)
+                {
+                    _isCast = true;
+                    _indicatorCast.color = Color.red;
+                    Cast();
+                    StartCoroutine(KDCast());
                 }
             }
 
-            if (Input.GetKeyDown(KeyCode.V))
+            if (Input.GetKeyDown(KeyCode.Space) && _pLayerGroundChecker.isGround)
             {
-                if (!this.IsHealing)
+                _rigidBody.AddForce(Vector3.up * _force);
+
+            }
+
+            if (Input.GetButtonUp("Fire1"))
+            {
+                this.IsFiring = false;
+            }
+            RotatePlayer();
+
+        }
+        private IEnumerator KDCast()
+        {
+            yield return new WaitForSeconds(2);
+            _indicatorCast.color = Color.green;
+            _isCast = false;
+        }
+
+        private void Cast()
+        {
+            Debug.Log("Cast");
+            var start = new Vector3(transform.position.x, transform.position.y + _offsetRay, transform.position.z);
+            Ray ray = new Ray(start, transform.forward);
+            bool raycast = Physics.SphereCast(ray, 2, out var hitInfo, _maxDistanceCast);
+ 
+            if (raycast && hitInfo.rigidbody != null)
+            {
+                Debug.Log(hitInfo.rigidbody.GetComponent<PlayerManager>().Id);
+                RaiseEventOptions raiseEventOptions = new RaiseEventOptions();
+                SendOptions sendOptions = new SendOptions { Reliability = true };
+                float ID = hitInfo.rigidbody.GetComponent<PlayerManager>().Id;
+                PhotonNetwork.RaiseEvent(4, new CastHit
                 {
-                    this.IsHealing = true;
-                }
+                    Direction = ray.direction,
+                    Id = ID
+                }, raiseEventOptions, sendOptions);
             }
         }
 
-        #endregion
+        private void RotatePlayer()
+        {
+            float h = Input.GetAxis("Horizontal");
+            float v = Input.GetAxis("Vertical");
 
-        #region IPunObservable implementation
+            Vector3 forward = Camera.main.transform.forward;
+            Vector3 right = Camera.main.transform.right;
+            forward.y = 0;
+            right.y = 0;
+            forward = forward.normalized;
+            right = right.normalized;
+
+            Vector3 forwardRelativeVerticalInput = v * forward;
+            Vector3 roightRelativeVerticalInput = h * right;
+            var movementDirection
+              = forwardRelativeVerticalInput + roightRelativeVerticalInput;
+            if (movementDirection.sqrMagnitude > 1.0f)
+            {
+                movementDirection.Normalize();
+            }
+            Vector3 rotationTarget = this.transform.position + movementDirection;
+            this.transform.LookAt(rotationTarget);
+        }
 
         public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
         {
@@ -469,7 +456,6 @@ namespace Photon.Pun.Demo.PunBasics
 
         public void OnEvent(EventData photonEvent)
         {
-            
             switch (photonEvent.Code)
             {
                 case 1:
@@ -481,8 +467,32 @@ namespace Photon.Pun.Demo.PunBasics
                         ChangeClientStatistics();
                     }
                     break;
+                case 3:
+                    Debug.Log("EndGame");
+                    _isEndGame = true;
+                    this._beams.SetActive(false);
+                    float id = (float)photonEvent.CustomData;
+                    if (id == photonView.ViewID && photonView.IsMine)
+                    {
+                        _endGameUI.GetComponent<TMP_Text>().text = "Победитель";
+                        ChangeClientStatistics();
+                    }
+                    else if (photonView.IsMine)
+                    {
+                        _endGameUI.GetComponent<TMP_Text>().text = "Проигравший";
+                    }
+                    break;
+                case 4:
+                    CastHit castHit = (CastHit)photonEvent.CustomData;
+                    Debug.Log(castHit.Id + " : " + castHit.Direction);
+                    if (castHit.Id == photonView.ViewID)
+                    {
+                        _soundManager.HitSound();
+                        _rigidBody.AddForce(castHit.Direction * _forceCast);
+                    }
+                    break;
             }
-                
+
 
 
         }
@@ -495,7 +505,7 @@ namespace Photon.Pun.Demo.PunBasics
         private void AddCharacterXP(Dictionary<string, int> currentstatistics)
         {
             currentstatistics[CharacterPlayFabCall.XP] += 123;
-
+            //Добавить метод повышения уровня, всегда до 500 ХР
             CharacterPlayFabCall.UpdateCharacterStatistics(UpdateUIStatistics, CharacterResult.CharacterId, currentstatistics);
 
         }
@@ -505,6 +515,9 @@ namespace Photon.Pun.Demo.PunBasics
             CharacterPlayFabCall.GetCHaracterStatistics(_characterPlayUI.UpdateUIStatistics, CharacterResult.CharacterId);
         }
 
-        #endregion
+        private void OnDestroy()
+        {
+            StopAllCoroutines();
+        }
     }
 }

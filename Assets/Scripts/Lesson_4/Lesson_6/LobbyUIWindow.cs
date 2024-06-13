@@ -7,8 +7,6 @@ using UnityEngine.UI;
 
 public class LobbyUIWindow : MonoBehaviour
 {
-    public Button CloseRoom;
-    public Button OpenRoom;
     public Button Connect;
     public Button CloseLobby;
     public Button PrivateRoom;
@@ -21,8 +19,6 @@ public class LobbyUIWindow : MonoBehaviour
     public Button BtnCancelConnectToPrivateRoom;
     public Button BtnAcceptConnectToPrivateRoom;
     public TMP_InputField InputFieldNameOfPrivateRoom;
-
-    public Button _sqlLobbyConnect;
 
     public (Button, RoomInfo) CurrentRoom;
 }

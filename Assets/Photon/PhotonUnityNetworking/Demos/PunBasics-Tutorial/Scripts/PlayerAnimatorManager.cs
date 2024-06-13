@@ -8,28 +8,44 @@
 // <author>developer@exitgames.com</author>
 // --------------------------------------------------------------------------------------------------------------------
 
+using ExitGames.Client.Photon;
+using Photon.Realtime;
 using UnityEngine;
 
 namespace Photon.Pun.Demo.PunBasics
 {
-	public class PlayerAnimatorManager : MonoBehaviourPun 
-	{
+	public class PlayerAnimatorManager : MonoBehaviourPun, IOnEventCallback
+    {
         #region Private Fields
 
         [SerializeField]
 	    private float directionDampTime = 0.25f;
         Animator animator;
+		private bool _isEndGame;
 
-		#endregion
+        public void OnEvent(EventData photonEvent)
+        {
+            switch (photonEvent.Code)
+            {
+                case 3:
+                    _isEndGame = true;
+                    animator.SetFloat("Speed", 0);
+                    animator.SetFloat("Direction", 0, directionDampTime, Time.deltaTime);
+                    break;
+            }
+        }
 
-		#region MonoBehaviour CallBacks
+        #endregion
 
-		/// <summary>
-		/// MonoBehaviour method called on GameObject by Unity during initialization phase.
-		/// </summary>
-	    void Start () 
+        #region MonoBehaviour CallBacks
+
+        /// <summary>
+        /// MonoBehaviour method called on GameObject by Unity during initialization phase.
+        /// </summary>
+        void Start () 
 	    {
-	        animator = GetComponent<Animator>();
+            PhotonNetwork.AddCallbackTarget(this);
+            animator = GetComponent<Animator>();
 	    }
 	        
 		/// <summary>
@@ -44,6 +60,11 @@ namespace Photon.Pun.Demo.PunBasics
 	            return;
 	        }
 
+			if (_isEndGame)
+			{
+                return;
+			}
+
 			// failSafe is missing Animator component on GameObject
 	        if (!animator)
 	        {
@@ -54,28 +75,33 @@ namespace Photon.Pun.Demo.PunBasics
             AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);			
 
 			// only allow jumping if we are running.
-            if (stateInfo.IsName("Base Layer.Run"))
-            {
-				// When using trigger parameter
-                if (Input.GetButtonDown("Fire2")) animator.SetTrigger("Jump"); 
-			}
+   //         if (stateInfo.IsName("Base Layer.Run"))
+   //         {
+			//	// When using trigger parameter
+   //             if (Input.GetButtonDown("Fire2")) animator.SetTrigger("Jump"); 
+			//}
            
 			// deal with movement
             float h = Input.GetAxis("Horizontal");
             float v = Input.GetAxis("Vertical");
-
+            
 			// prevent negative Speed.
             if( v < 0 )
             {
-                v = 0;
+                v = -v;
             }
 
 			// set the Animator Parameters
             animator.SetFloat( "Speed", h*h+v*v );
-            animator.SetFloat( "Direction", h, directionDampTime, Time.deltaTime );
+            //animator.SetFloat( "Direction", h, directionDampTime, Time.deltaTime );
 	    }
 
-		#endregion
+        private void OnDestroy()
+        {
+            PhotonNetwork.RemoveCallbackTarget(this);
+        }
 
-	}
+        #endregion
+
+    }
 }
