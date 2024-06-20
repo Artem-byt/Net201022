@@ -10,7 +10,6 @@
 
 using UnityEngine;
 using UnityEngine.SceneManagement;
-
 using Photon.Realtime;
 
 namespace Photon.Pun.Demo.PunBasics
@@ -40,6 +39,7 @@ namespace Photon.Pun.Demo.PunBasics
         [SerializeField]
         private GameObject playerPrefab;
 
+
         #endregion
 
         #region MonoBehaviour CallBacks
@@ -50,9 +50,9 @@ namespace Photon.Pun.Demo.PunBasics
         void Start()
 		{
 			Instance = this;
+			//in case we started this demo with the wrong scene being active, simply load the menu scene
 
-			// in case we started this demo with the wrong scene being active, simply load the menu scene
-			if (!PhotonNetwork.IsConnected)
+            if (!PhotonNetwork.IsConnected)
 			{
 				SceneManager.LoadScene("PunBasics-Launcher");
 
@@ -147,7 +147,7 @@ namespace Photon.Pun.Demo.PunBasics
 		/// </summary>
 		public override void OnLeftRoom()
 		{
-			SceneManager.LoadScene("PunBasics-Launcher");
+			SceneManager.LoadScene("Lesson_4");
 		}
 
 		#endregion
@@ -156,7 +156,7 @@ namespace Photon.Pun.Demo.PunBasics
 
 		public void LeaveRoom() 
 		{
-			PhotonNetwork.LeaveRoom();
+            PhotonNetwork.LeaveRoom();
 		}
 
 		public void QuitApplication()
@@ -178,7 +178,7 @@ namespace Photon.Pun.Demo.PunBasics
 
 			Debug.LogFormat( "PhotonNetwork : Loading Level : {0}", PhotonNetwork.CurrentRoom.PlayerCount );
 
-			PhotonNetwork.LoadLevel("PunBasics-Room for "+PhotonNetwork.CurrentRoom.PlayerCount);
+			PhotonNetwork.LoadLevel("PunBasics-Room for "+ PhotonNetwork.CurrentRoom.PlayerCount);
 		}
 
 		#endregion
